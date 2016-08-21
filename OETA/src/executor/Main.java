@@ -18,17 +18,17 @@ public class Main {
 		ArrayList<EventSequence> as = event_streams.get(0);
 		ArrayList<EventSequence> bs = event_streams.get(1);
 		
-		// A,B
+		/*// A,B
 		ArrayList<EventSequence> ab = Sequence.generate(as, bs);
-		System.out.println("Results of A,B: " + ab.toString() + "\nCount: " + ab.size());
+		System.out.println("Results of A,B: " + ab.toString() + "\nCount: " + ab.size());*/
 		
 		// A+
 		ArrayList<EventSequence> a_plus = Kleene.generate(as);
 		System.out.println("Results of A+: " + a_plus.toString() + "\nCount: " + a_plus.size());
 		
-		// (A,B)+
+		/*// (A,B)+
 		ArrayList<EventSequence> ab_plus = Kleene.generate(ab);
-		System.out.println("Results of (A,B)+: " + ab_plus.toString() + "\nCount: " + ab_plus.size());
+		System.out.println("Results of (A,B)+: " + ab_plus.toString() + "\nCount: " + ab_plus.size());*/
 		
 		// A+,B	
 		ArrayList<EventSequence> a_plus_b = Sequence.generate(a_plus, bs);
@@ -38,10 +38,10 @@ public class Main {
 		ArrayList<EventSequence> a_plus_b__plus = Kleene.generate(a_plus_b);
 		System.out.println("Results of (A+,B)+: " + a_plus_b__plus.toString() + "\nCount: " + a_plus_b__plus.size());	
 		
-		// A+,B+
+		/*// A+,B+
 		ArrayList<EventSequence> b_plus = Kleene.generate(bs);
 		ArrayList<EventSequence> a_plus_b_plus = Sequence.generate(a_plus, b_plus);
-		System.out.println("Results of A+,B+: " + a_plus_b_plus.toString() + "\nCount: " + a_plus_b_plus.size());
+		System.out.println("Results of A+,B+: " + a_plus_b_plus.toString() + "\nCount: " + a_plus_b_plus.size());*/
 	}
 	
 	static ArrayList<EventSequence> parse (String input) {
