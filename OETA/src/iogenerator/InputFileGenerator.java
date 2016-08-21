@@ -10,16 +10,26 @@ public class InputFileGenerator {
 	
 	public static void main (String[] args) {
 		
-		/*** Read input parameters ***/
-		int last_sec = Integer.parseInt(args[0]);
-		int total_rate = Integer.parseInt(args[1]);
-		int matched_rate = Integer.parseInt(args[2]);
-		int lambda = Integer.parseInt(args[3]);		
+		/*** Set default input parameters ***/
+		String file = "stream";
+		int last_sec = 3;
+		int total_rate = 5;
+		int matched_rate = 3;
+		int lambda = 100;
 		
+		/*** Read input parameters ***/
+		for (int i=0; i<args.length; i++){
+			if (args[i].equals("-file")) 	file = args[++i];
+			if (args[i].equals("-sec")) 	last_sec = Integer.parseInt(args[++i]);
+			if (args[i].equals("-trate"))   total_rate = Integer.parseInt(args[++i]);
+			if (args[i].equals("-mrate")) 	matched_rate = Integer.parseInt(args[++i]);
+			if (args[i].equals("-lambda")) 	lambda = Integer.parseInt(args[++i]);
+		}
+				
 		/*** Generate input event stream ***/
 		try {		
 			// Open the output file
-			String output_file_name = "src\\iofiles\\stream.txt"; 
+			String output_file_name = "src\\iofiles\\" + file + ".txt"; 
 			File output_file = new File(output_file_name);
 			BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
 		
