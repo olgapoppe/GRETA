@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import event.*;
 import operator.*;
 
-public class Main {
+public class TreeBased {
 	
 	public static void main (String args[]) {
 		
