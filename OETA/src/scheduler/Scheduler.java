@@ -18,11 +18,8 @@ public class Scheduler implements Runnable {
 	int window_length;
 	int window_slide;
 	ArrayDeque<Window> windows;
+	
 	int algorithm;
-	double memory_limit;
-	int cut_number;
-	int search_algorithm;
-		
 	ExecutorService executor;
 	
 	AtomicInteger drProgress;
@@ -33,9 +30,7 @@ public class Scheduler implements Runnable {
 	AtomicInteger total_memory;
 	OutputFileGenerator output;
 	
-	SharedPartitions shared_partitions;
-	
-	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, int a, double ml, int pn, int sa, 
+	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, int a,  
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
@@ -45,10 +40,7 @@ public class Scheduler implements Runnable {
 		window_slide = ws;
 		windows = new ArrayDeque<Window>();
 		algorithm = a;
-		memory_limit = ml;
-		cut_number = pn;
-		search_algorithm = sa;
-		
+				
 		executor = exe;
 		
 		drProgress = dp;
@@ -58,9 +50,7 @@ public class Scheduler implements Runnable {
 		
 		total_cpu = time;
 		total_memory = mem;
-		output = o;
-		
-		shared_partitions = new SharedPartitions();
+		output = o;	
 	}
 	
 	/**
@@ -89,10 +79,10 @@ public class Scheduler implements Runnable {
 		while (eventqueue.getDriverProgress(progress)) {
 			
 			/*** Schedule the available events ***/
-			Event event = eventqueue.contents.peek();
+			StockEvent event = eventqueue.contents.peek();
 			while (event != null && event.sec <= progress) { 
 					
-				Event e = eventqueue.contents.poll();
+				StockEvent e = eventqueue.contents.poll();
 				
 				/*** Fill windows with events ***/
 				for (Window window : windows2iterate) {
@@ -138,8 +128,10 @@ public class Scheduler implements Runnable {
 	}	
 	
 	public void execute(Window window) {
-		Transaction transaction;
-		if (algorithm == 0) {
+		
+		Transaction transaction = new Echo(window.events,output,transaction_number,total_cpu,total_memory,window);
+		
+		/*if (algorithm == 0) {
 			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window);
 		} else {
 		if (algorithm == 1) {
@@ -152,7 +144,7 @@ public class Scheduler implements Runnable {
 			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
 		} else {
 			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,window_slide,shared_partitions);
-		}}}}		
+		}}}}*/		
 		executor.execute(transaction);	
 	}	
 }

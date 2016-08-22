@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
+import iogenerator.*;
 import event.*;
 import scheduler.*;
  
@@ -40,49 +40,33 @@ public class Main {
 		String outputfile = "sequences.txt";		
 		
 		boolean realtime = true;
-		boolean overlap = true;
 		int firstsec = 0;
 	    int lastsec = 0;
 		int window_length = 0;
 		int window_slide = 0;	
-		int algorithm = 4;
-		double memory_limit = Double.MAX_VALUE;
-		int cut_number = -1;
-		int search_algorithm = 1;
+		int algorithm = 0;		
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
 			if (args[i].equals("-path")) 		path = args[++i];
 			if (args[i].equals("-file")) 		inputfile = args[++i];
 			if (args[i].equals("-realtime")) 	realtime = Integer.parseInt(args[++i]) == 1;
-			if (args[i].equals("-overlap")) 	overlap = Integer.parseInt(args[++i]) == 1;
 			if (args[i].equals("-from")) 		firstsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-to")) 			lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
-			if (args[i].equals("-mem")) 		memory_limit = Double.parseDouble(args[++i]);
-			if (args[i].equals("-cut")) 		cut_number = Integer.parseInt(args[++i]);
-			if (args[i].equals("-search")) 		search_algorithm = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
-	    if (!overlap) {
-	    	window_length = lastsec+1;
-	    	window_slide = lastsec+1;
-	    }
-	    
+	   	    
 	    // Print input parameters
 	    System.out.println(	"Input file: " + inputfile +
 	    					"\nReal time: " + realtime +
-	    					"\nOverlapping window: " + overlap +
 	    					"\nStream from " + firstsec + " to " + lastsec +
 	    					"\nWindow length: " + window_length + 
 							"\nWindow slide: " + window_slide +
 							"\nAlgorithm: " + algorithm +
-							"\nMemory limit: " + memory_limit +
-							"\nCut number: " + cut_number +
-							"\nSearch algorithm: " + search_algorithm +
 							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
@@ -103,7 +87,7 @@ public class Main {
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
 		EventDriver driver = new EventDriver (input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
-		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm, memory_limit, cut_number, search_algorithm, 
+		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm,  
 				executor, driverProgress, done, total_cpu, total_memory, output);		
 		
 		Thread prodThread = new Thread(driver);
