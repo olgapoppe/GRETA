@@ -1,9 +1,7 @@
 package graph;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import event.*;
-import iogenerator.*;
 
 public class Node {
 	
@@ -16,6 +14,11 @@ public class Node {
 		previous = new ArrayList<Node>();
 		following = new ArrayList<Node>();		
 	}
+	
+	public void connect (Node other) {
+		if (!this.following.contains(other)) this.following.add(other);
+		if (!other.previous.contains(this)) other.previous.add(this);
+	}	
 	
 	public String toString() {
 		return event.toString(); 
