@@ -14,8 +14,8 @@ public class StockEvent {
 		price = p;
 	}
 	
-	public String toString() {
-		return "sec " + sec + " sector " + sector + " company " + company + " price " + price;
+	public boolean equals(StockEvent other) {
+		return this.sec == other.sec && this.sector == other.sector && this.company == other.company && this.price == other.price;
 	}
 	
 	public static StockEvent parse (String line) {
@@ -32,4 +32,7 @@ public class StockEvent {
         return event;
 	}
 	
+	public String toString() {
+		return "sec " + sec + " sector " + sector + " company " + company + " price " + price;
+	}
 }

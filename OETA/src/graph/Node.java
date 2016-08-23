@@ -15,6 +15,10 @@ public class Node {
 		following = new ArrayList<Node>();		
 	}
 	
+	public boolean equals(Node other) {
+		return this.event.equals(other.event);
+	}
+	
 	public void connect (Node other) {
 		if (!this.following.contains(other)) this.following.add(other);
 		if (!other.previous.contains(this)) other.previous.add(this);
