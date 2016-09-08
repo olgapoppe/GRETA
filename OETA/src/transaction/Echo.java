@@ -20,7 +20,7 @@ public class Echo extends Transaction {
 		window = w;
 	}
 	
-	public void run () {
+	public void run() {
 		
 		long start =  System.currentTimeMillis();
 		computeResults();

@@ -7,21 +7,18 @@ public class Node {
 	
 	public StockEvent event;
 	public ArrayList<Node> previous;
-	public ArrayList<Node> following;
-		
+			
 	public Node (StockEvent e) {
 		event = e;
 		previous = new ArrayList<Node>();
-		following = new ArrayList<Node>();		
 	}
 	
-	public boolean equals(Node other) {
+	public boolean equals (Node other) {
 		return this.event.equals(other.event);
 	}
 	
-	public void connect (Node other) {
-		if (!this.following.contains(other)) this.following.add(other);
-		if (!other.previous.contains(this)) other.previous.add(this);
+	public void connect (Node old_event) {
+		if (!this.previous.contains(old_event)) this.previous.add(old_event);
 	}	
 	
 	public String toString() {

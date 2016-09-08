@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class Graph {
 	
 	public ArrayList<Node> nodes;
-	// Events per second
+	// Arrays of events per event type. Each array is sorted by time stamp. 
 	public HashMap<Integer,ArrayList<Node>> events_per_second;
 	public int edgeNumber;	
 		
@@ -16,9 +16,9 @@ public class Graph {
 		edgeNumber = 0;		
 	}
 	
-	public void connect (Node first, Node second) {
-		if (!first.following.contains(second)) {
-			first.connect(second);
+	public void connect (Node old_event, Node new_event) {
+		if (!new_event.previous.contains(old_event)) {
+			new_event.connect(old_event);
 			edgeNumber++;
 		}
 	}
