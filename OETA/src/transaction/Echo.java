@@ -11,12 +11,12 @@ import iogenerator.*;
 
 public class Echo extends Transaction {
 	
-	HashSet<TreeSet<StockEvent>> results;
+	HashSet<TreeSet<Event>> results;
 	Window window; 
 	
-	public Echo (ArrayList<StockEvent> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
+	public Echo (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
 		super(b,o,tn,time,mem);
-		results = new HashSet<TreeSet<StockEvent>>();
+		results = new HashSet<TreeSet<Event>>();
 		window = w;
 	}
 	
@@ -34,7 +34,7 @@ public class Echo extends Transaction {
 	
 	public void computeResults() {
 		
-		for (StockEvent event: batch)
+		for (Event event: batch)
 			System.out.println(event.toString());
 	}
 }

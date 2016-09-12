@@ -37,6 +37,7 @@ public class Main {
 	    
 	    /*** Input and output ***/
 	    // Set default values
+	    String type = "stock";
 	    String path = "iofiles/";
 		String inputfile = "stream.txt";
 		String outputfile = "sequences.txt";		
@@ -50,6 +51,7 @@ public class Main {
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
+	    	if (args[i].equals("-type")) 		type = args[++i];
 			if (args[i].equals("-path")) 		path = args[++i];
 			if (args[i].equals("-file")) 		inputfile = args[++i];
 			if (args[i].equals("-realtime")) 	realtime = Integer.parseInt(args[++i]) == 1;
@@ -63,7 +65,8 @@ public class Main {
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
 	   	    
 	    // Print input parameters
-	    System.out.println(	"Input file: " + inputfile +
+	    System.out.println(	"Event type: " + type +
+	    					"\nInput file: " + inputfile +
 	    					"\nReal time: " + realtime +
 	    					"\nStream from " + firstsec + " to " + lastsec +
 	    					"\nWindow length: " + window_length + 
@@ -87,7 +90,7 @@ public class Main {
 		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
+		EventDriver driver = new EventDriver (type, input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, window_length, window_slide, algorithm,  
 				executor, driverProgress, done, total_cpu, total_memory, output);		

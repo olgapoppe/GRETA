@@ -79,10 +79,10 @@ public class Scheduler implements Runnable {
 		while (eventqueue.getDriverProgress(progress)) {
 			
 			/*** Schedule the available events ***/
-			StockEvent event = eventqueue.contents.peek();
+			Event event = eventqueue.contents.peek();
 			while (event != null && event.sec <= progress) { 
 					
-				StockEvent e = eventqueue.contents.poll();
+				Event e = eventqueue.contents.poll();
 				
 				/*** Fill windows with events ***/
 				for (Window window : windows2iterate) {

@@ -56,8 +56,9 @@ public class TreeBased {
 		String[] numbers = split_input[1].split(",");
 		
 		for (int i=0; i<numbers.length; i++) {
-			int time = Integer.parseInt(numbers[i]);
-			RawEvent e = new RawEvent(type,time);
+			int id = Integer.parseInt(numbers[i]);
+			int time = Integer.parseInt(numbers[i]);			
+			RawEvent e = new RawEvent(type,id,time);
 			ArrayList<RawEvent> events = new ArrayList<RawEvent>();
 			events.add(e);
 			EventSequence c = new EventSequence(events);

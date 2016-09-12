@@ -5,11 +5,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class EventQueue {
 	
-	public ConcurrentLinkedQueue<StockEvent> contents;
+	public ConcurrentLinkedQueue<Event> contents;
 	public AtomicInteger driverProgress;
 				
 	public EventQueue (AtomicInteger dp) {		
-		contents = new ConcurrentLinkedQueue<StockEvent>();
+		contents = new ConcurrentLinkedQueue<Event>();
 		driverProgress = dp;		
 	}
 	

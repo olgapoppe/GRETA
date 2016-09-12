@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class EventDriver implements Runnable {	
 	
+	String type;
 	String filename;
 	boolean realtime;
 	int lastsec;
@@ -16,8 +17,9 @@ public class EventDriver implements Runnable {
 	AtomicInteger drProgress;
 	AtomicInteger eventNumber;
 		
-	public EventDriver (String f, boolean rt, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN) {
+	public EventDriver (String ty, String f, boolean rt, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN) {
 		
+		type = ty;
 		filename = f;
 		realtime = rt;
 		lastsec = last;
@@ -40,7 +42,7 @@ public class EventDriver implements Runnable {
 			Scanner scanner = new Scanner(new File(filename));
 			// First event
 			String line = scanner.nextLine();
-	 		StockEvent event = StockEvent.parse(line);
+	 		Event event = Event.parse(line,type);
 	 		// Current Second
 	 		int curr_sec = -1;		
 			// First batch			
@@ -59,7 +61,7 @@ public class EventDriver implements Runnable {
 	 			while (event != null && event.sec <= batch.end) {	 			
 	 				
 	 				/*** Put the event into the event queue and increment the counter ***/						
-	 				if (event.sector > 0) {
+	 				if (event.isRelevant()) {
 	 					eventqueue.contents.add(event);	
 	 					eventNumber.set(eventNumber.get()+1);
 	 				}
@@ -78,7 +80,7 @@ public class EventDriver implements Runnable {
 	 				/*** Reset event ***/
 	 				if (scanner.hasNextLine()) {		 				
 	 					line = scanner.nextLine();   
-	 					event = StockEvent.parse(line);		 				
+	 					event = Event.parse(line,type);		 				
 	 				} else {
 	 					event = null;		 				
 	 				}

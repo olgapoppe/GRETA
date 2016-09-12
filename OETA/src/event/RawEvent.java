@@ -1,24 +1,29 @@
 package event;
 
-public class RawEvent {
+public class RawEvent extends Event {
 	
-	String type;
-	int time;
+	public RawEvent (String t, int i, int s) {
+		super(t,i,s);
+	}	
 	
-	public RawEvent (String t1, int t2) {
-		type = t1;
-		time = t2;
+	public static RawEvent parse (String line) {
+		
+		String[] values = line.split(":");
+		
+		String t = values[0];
+		int i = Integer.parseInt(values[1]);
+		int s = Integer.parseInt(values[1]);
+	           	    	    	
+    	RawEvent event = new RawEvent(t,i,s);    	
+    	//System.out.println(event.toString());    	
+        return event;
 	}
 	
-	public int getStart() {
-		return time;
-	}
-	
-	public int getEnd() {
-		return time;
+	public boolean isRelevant() {
+		return true;
 	}
 	
 	public String toString() {
-		return type + time;
+		return type + sec;
 	}
 }
