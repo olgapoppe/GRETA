@@ -37,6 +37,10 @@ public class StockEvent extends Event {
 	}
 	
 	public String toString() {
-		return "sec " + sec + " sector " + sector + " company " + company + " price " + price;
+		return ""+ id;
+	}
+	
+	public String toStringComplete() {
+		return "id " + id + "sec " + sec + " sector " + sector + " company " + company + " price " + price;
 	}
 }

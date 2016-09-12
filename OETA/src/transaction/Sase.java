@@ -1,7 +1,6 @@
 package transaction;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +22,7 @@ public class Sase extends Transaction {
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);
 		
-		System.out.println("Window " + window.id + " has " + results.size() + " results.");		
+		System.out.println("Window " + window.id + " has " + count + " results.");		
 		//writeOutput2File();		
 		transaction_number.countDown();
 	}
@@ -70,7 +69,7 @@ public class Sase extends Transaction {
 			}			
 			// Store the event in a stack
 			stack.add(event);
-			System.out.println(window.id + " " + event.toStringWithPointers(window.id));
+			//System.out.println(window.id + " " + event.toStringWithPointers(window.id));
 		}		
 		// For each new last event, traverse the pointers to extract CETs
 		int maxSeqLength = 0;
@@ -86,23 +85,20 @@ public class Sase extends Transaction {
 	public int traversePointers (Event event, Stack<Event> current_sequence, int maxSeqLength) {       
 			
 		current_sequence.push(event);
-		//System.out.println("pushed " + node.event.id);
+		//System.out.println("pushed " + event.id);
 		
 		ArrayList<Event> pointers = event.pointers.get(window.id);
 	        
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
-	    if (pointers.isEmpty()) {   
-	       	String result = "";        	
-	       	Iterator<Event> iter = current_sequence.iterator();
-	       	while(iter.hasNext()) {
-	       		Event n = iter.next();
-	       		result += n.id + ";";
-	       	}
-	       	int eventNumber = getEventNumber(result);
-			if (maxSeqLength < eventNumber) maxSeqLength = eventNumber;	
+	    if (pointers.isEmpty()) {  
+	    	// Update results
+	       	ArrayList<Event> result = new ArrayList<Event>();        	
+	       	result.addAll(current_sequence);
 	       	results.add(result);  
-	        
-			//System.out.println("result " + result);
+	        System.out.println("complete result " + result.toString());
+	        // Update max length and count
+	       	if (maxSeqLength < result.size()) maxSeqLength = result.size();	
+	       	count++;
 				
 	    } else {
 	    /*** Recursive case: Traverse the following nodes. ***/     	
@@ -115,5 +111,5 @@ public class Sase extends Transaction {
 	    //System.out.println("popped " + top.event.id);
 	    	    
 	    return maxSeqLength;
-	}
+	}	
 }
