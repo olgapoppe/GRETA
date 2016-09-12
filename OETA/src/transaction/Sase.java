@@ -1,5 +1,6 @@
 package transaction;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
@@ -82,34 +83,80 @@ public class Sase extends Transaction {
 	}
 	
 	// DFS in the stack
-	public int traversePointers (Event event, Stack<Event> current_sequence, int maxSeqLength) {       
+	public int traversePointers (Event event, Stack<Event> current_trend, int maxSeqLength) {       
 			
-		current_sequence.push(event);
-		//System.out.println("pushed " + event.id);
+		current_trend.push(event);
+		System.out.println("pushed " + event.id);
+		
+		 ArrayList<Event> input = new ArrayList<Event>();
+	     input.addAll(current_trend);
+	     List<String> incomplete_trends = getIncompleteTrends(input);
+	     count += incomplete_trends.size();
+	     //System.out.println(incomplete_trends);
 		
 		ArrayList<Event> pointers = event.pointers.get(window.id);
 	        
 		/*** Base case: We hit the end of the graph. Output the current CET. ***/
 	    if (pointers.isEmpty()) {  
-	    	// Update results
-	       	ArrayList<Event> result = new ArrayList<Event>();        	
-	       	result.addAll(current_sequence);
-	       	results.add(result);  
-	        System.out.println("complete result " + result.toString());
-	        // Update max length and count
-	       	if (maxSeqLength < result.size()) maxSeqLength = result.size();	
-	       	count++;
+	    	
+	    	//System.out.println("complete trend " + current_trend.toString());
+	        if (maxSeqLength < current_trend.size()) maxSeqLength = current_trend.size();
+	        
+	       /* ArrayList<Event> input = new ArrayList<Event>();
+	        input.addAll(current_trend);
+	        List<String> incomplete_trends = getIncompleteTrends(input);
+	       	count += incomplete_trends.size();*/
 				
 	    } else {
 	    /*** Recursive case: Traverse the following nodes. ***/     	
 	       	for(Event previous : pointers) {        		
 	       		//System.out.println("following of " + node.event.id + " is " + following.event.id);
-	       		maxSeqLength = traversePointers(previous,current_sequence,maxSeqLength);        		
+	       		maxSeqLength = traversePointers(previous,current_trend,maxSeqLength);        		
 	       	}        	
 	    }
-	    Event top = current_sequence.pop();
+	    Event top = current_trend.pop();
 	    //System.out.println("popped " + top.event.id);
 	    	    
 	    return maxSeqLength;
 	}	
+	
+	public static List<String> getIncompleteTrends(List<Event> elements) {
+
+	    ArrayList<String> results = new ArrayList<String>();
+	    
+	    Event obligatory = elements.remove(elements.size()-1);
+	    results.add(obligatory.id+"");
+	   
+	    if (!elements.isEmpty()) {
+	    List<String> rest = getCombinations(elements,obligatory);
+	    results.addAll(rest);   
+	    }
+	    System.out.println(results.toString());
+	    
+	    return results;
+	}
+	
+	public static List<String> getCombinations(List<Event> elements, Event obligatory) {
+
+	    //return list with empty String
+	    if(elements.size() == 0){
+	        List<String> allLists = new ArrayList<String>();
+	        allLists.add("");
+	        return allLists ;
+	    }
+
+	    Event first_ele = elements.remove(0);
+	    	    
+	    List<String> rest = getCombinations(elements,obligatory);
+	    int restsize = rest.size();
+	    //Mapping the first_ele with each of the rest of the elements.
+	    for (int i = 0; i < restsize; i++) {
+	        String ele = first_ele.id + "," + rest.get(i) + "," + obligatory.id;
+	        rest.add(ele);
+	        //System.out.println(ele);
+	    }
+
+	    return rest;
+	}
+	
 }
