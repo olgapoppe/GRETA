@@ -1,25 +1,18 @@
 package transaction;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.*;
 import iogenerator.*;
 
 public class Sase extends Transaction {
 	
-	HashSet<String> results;
-	Window window;
-	
-	public Sase (ArrayList<Event> b, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem, Window w) {		
-		super(b,o,tn,time,mem);
-		results = new HashSet<String>();
-		window = w;
+	public Sase (Window w,OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		super(w,o,tn,time,mem);
 	}
 	
 	public void run () {
@@ -44,7 +37,7 @@ public class Sase extends Transaction {
 		int curr_sec = -1;
 		int pointerCount = 0;
 		
-		for (Event event: batch) {
+		for (Event event : window.events) {
 			
 			if (!event.pointers.containsKey(window.id)) {
 				ArrayList<Event> new_pointers = new ArrayList<Event>();
@@ -77,7 +70,7 @@ public class Sase extends Transaction {
 			}			
 			// Store the event in a stack
 			stack.add(event);
-			//System.out.println(window_id + " " + event.toStringWithPointers(window_id));
+			System.out.println(window.id + " " + event.toStringWithPointers(window.id));
 		}		
 		// For each new last event, traverse the pointers to extract CETs
 		int maxSeqLength = 0;

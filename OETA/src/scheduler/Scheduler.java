@@ -19,7 +19,7 @@ public class Scheduler implements Runnable {
 	int window_slide;
 	ArrayDeque<Window> windows;
 	
-	int algorithm;
+	String algorithm;
 	ExecutorService executor;
 	
 	AtomicInteger drProgress;
@@ -30,7 +30,7 @@ public class Scheduler implements Runnable {
 	AtomicInteger total_memory;
 	OutputFileGenerator output;
 	
-	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, int a,  
+	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, String algo,  
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
@@ -39,7 +39,7 @@ public class Scheduler implements Runnable {
 		window_length = wl;
 		window_slide = ws;
 		windows = new ArrayDeque<Window>();
-		algorithm = a;
+		algorithm = algo;
 				
 		executor = exe;
 		
@@ -129,22 +129,12 @@ public class Scheduler implements Runnable {
 	
 	public void execute(Window window) {
 		
-		Transaction transaction = new Echo(window.events,output,transaction_number,total_cpu,total_memory,window);
-		
-		/*if (algorithm == 0) {
-			transaction = new Sase(window.events,output,transaction_number,total_cpu,total_memory,window);
+		Transaction transaction;
+		if (algorithm.equals("sase")) {
+			transaction = new Sase(window,output,transaction_number,total_cpu,total_memory);
 		} else {
-		if (algorithm == 1) {
-			transaction = new BaseLine(window.events,output,transaction_number,total_cpu,total_memory,window);		
-		} else {
-		if (algorithm == 2) {
-			transaction = new M_CET(window.events,output,transaction_number,total_cpu,total_memory);
-		} else {
-		if (algorithm == 3) {
-			transaction = new T_CET(window.events,output,transaction_number,total_cpu,total_memory);
-		} else {
-			transaction = new H_CET(window.events,output,transaction_number,total_cpu,total_memory,memory_limit,cut_number,search_algorithm,windows,window,window_slide,shared_partitions);
-		}}}}*/		
+			transaction = new Echo(window,output,transaction_number,total_cpu,total_memory);
+		}
 		executor.execute(transaction);	
 	}	
 }

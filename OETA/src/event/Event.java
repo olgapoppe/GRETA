@@ -15,6 +15,7 @@ public abstract class Event {
 		id = i;
 		type = t;
 		sec = s;
+		pointers = new HashMap<String,ArrayList<Event>>();
 	}
 	
 	public int getStart() {
@@ -37,4 +38,14 @@ public abstract class Event {
 	
 	public abstract boolean isRelevant();
 	public abstract String toString();
+	
+	/** Print this event with pointers to console */
+	public String toStringWithPointers(String widnow_id) {
+		ArrayList<Event> predecessors = pointers.get(widnow_id);
+		String s = id + " : ";
+		for (Event predecessor : predecessors) {
+			s += predecessor.id + ",";
+		}
+		return s;
+	}
 }

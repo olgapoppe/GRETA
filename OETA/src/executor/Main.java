@@ -47,7 +47,7 @@ public class Main {
 	    int lastsec = 0;
 		int window_length = 0;
 		int window_slide = 0;	
-		int algorithm = 0;		
+		String algorithm = "echo";		
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -59,7 +59,7 @@ public class Main {
 			if (args[i].equals("-to")) 			lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
-			if (args[i].equals("-algo")) 		algorithm = Integer.parseInt(args[++i]);
+			if (args[i].equals("-algo")) 		algorithm = args[++i];
 		}
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
@@ -85,7 +85,7 @@ public class Main {
 		
 		/*** EXECUTORS ***/
 		int window_number = (lastsec-firstsec)/window_slide + 1;
-		ExecutorService executor = Executors.newFixedThreadPool(window_number);
+		ExecutorService executor = Executors.newFixedThreadPool(3);
 			
 		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.

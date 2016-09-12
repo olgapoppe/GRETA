@@ -22,10 +22,10 @@ public class StockEvent extends Event {
 		String[] values = line.split(",");
 		
 		int i = Integer.parseInt(values[0]);
-		int t = Integer.parseInt(values[0]);
-        int s = Integer.parseInt(values[1]);
-        int c = Integer.parseInt(values[2]);          	
-        int p = Integer.parseInt(values[2]);
+		int t = Integer.parseInt(values[1]);
+        int s = Integer.parseInt(values[2]);
+        int c = Integer.parseInt(values[3]);          	
+        int p = Integer.parseInt(values[4]);
     	    	    	
     	StockEvent event = new StockEvent(i,t,s,c,p);    	
     	//System.out.println(event.toString());    	
