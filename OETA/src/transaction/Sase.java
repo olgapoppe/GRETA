@@ -144,11 +144,12 @@ public class Sase extends Transaction {
 			int limit = rest.size();
 						
 			for (int i = 0; i < limit; i++) {
+				
 				ArrayList<Event> events = new ArrayList<Event>();
 				events.add(first_event);
 				events.addAll(rest.get(i).events);		
 				EventSequence seq = new EventSequence(events);
-				rest.add(seq);						
+				rest.add(seq);	
 			}
 			with_duplicates.addAll(rest);
 		}		
