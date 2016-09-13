@@ -1,6 +1,5 @@
 package transaction;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
@@ -72,91 +71,88 @@ public class Sase extends Transaction {
 			stack.add(event);
 			//System.out.println(window.id + " " + event.toStringWithPointers(window.id));
 		}		
-		// For each new last event, traverse the pointers to extract CETs
-		int maxSeqLength = 0;
+		// For each new last event, traverse the pointers to extract trends
+		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();
 		for (Event lastEvent : newLastEvents) {
-			maxSeqLength = traversePointers(lastEvent, new Stack<Event>(), maxSeqLength);
+			traversePointers(lastEvent, new Stack<Event>(), without_duplicates);
 		}
-		int memory = stack.size() + pointerCount + maxSeqLength;
-		total_mem.set(total_mem.get() + memory);
+		count = without_duplicates.size();
+		System.out.println(without_duplicates);
+
+		total_mem.set(total_mem.get() + stack.size() + pointerCount + count);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);
 	}
 	
 	// DFS in the stack
-	public int traversePointers (Event event, Stack<Event> current_trend, int maxSeqLength) {       
+	public void traversePointers (Event event, Stack<Event> current_trend, ArrayList<EventSequence> without_duplicates) {       
 			
 		current_trend.push(event);
-		System.out.println("pushed " + event.id);
+		//System.out.println("pushed " + event.id);
 		
-		 ArrayList<Event> input = new ArrayList<Event>();
-	     input.addAll(current_trend);
-	     List<String> incomplete_trends = getIncompleteTrends(input);
-	     count += incomplete_trends.size();
-	     //System.out.println(incomplete_trends);
-		
-		ArrayList<Event> pointers = event.pointers.get(window.id);
-	        
-		/*** Base case: We hit the end of the graph. Output the current CET. ***/
-	    if (pointers.isEmpty()) {  
-	    	
-	    	//System.out.println("complete trend " + current_trend.toString());
-	        if (maxSeqLength < current_trend.size()) maxSeqLength = current_trend.size();
-	        
-	       /* ArrayList<Event> input = new ArrayList<Event>();
-	        input.addAll(current_trend);
-	        List<String> incomplete_trends = getIncompleteTrends(input);
-	       	count += incomplete_trends.size();*/
-				
-	    } else {
-	    /*** Recursive case: Traverse the following nodes. ***/     	
-	       	for(Event previous : pointers) {        		
-	       		//System.out.println("following of " + node.event.id + " is " + following.event.id);
-	       		maxSeqLength = traversePointers(previous,current_trend,maxSeqLength);        		
-	       	}        	
-	    }
+		// Count all trends with this new event
+		ArrayList<Event> input = new ArrayList<Event>();
+	    input.addAll(current_trend);
+	    without_duplicates = getIncompleteTrends(input,without_duplicates);
+	    	    	
+	    /*** Traverse the following nodes. ***/
+		ArrayList<Event> pointers = event.pointers.get(window.id);	       
+		for(Event previous : pointers) {        		
+			//System.out.println("following of " + node.event.id + " is " + following.event.id);
+	       	traversePointers(previous,current_trend,without_duplicates);        		
+	    }        	
+	    
 	    Event top = current_trend.pop();
-	    //System.out.println("popped " + top.event.id);
-	    	    
-	    return maxSeqLength;
+	    if (!top.flagged) {
+	    	top.flagged = true;
+	    	//System.out.println("popped and flagged " + top.id);
+	    }  	    	    
 	}	
 	
-	public static List<String> getIncompleteTrends(List<Event> elements) {
-
-	    ArrayList<String> results = new ArrayList<String>();
-	    
+	public static ArrayList<EventSequence> getIncompleteTrends(ArrayList<Event> elements, ArrayList<EventSequence> without_duplicates) {
+		
+		// The new event is obligatory in all new trends
 	    Event obligatory = elements.remove(elements.size()-1);
-	    results.add(obligatory.id+"");
-	   
-	    if (!elements.isEmpty()) {
-	    List<String> rest = getCombinations(elements,obligatory);
-	    results.addAll(rest);   
-	    }
-	    System.out.println(results.toString());
-	    
-	    return results;
+	    	    	    
+	    // Get the new trends with obligatory event
+	    ArrayList<EventSequence> with_duplicates = getCombinations(elements,obligatory);
+	      
+	    // Eliminate duplicates
+	 	for (EventSequence seq : with_duplicates) {
+	 		if (!seq.allFlagged() && !without_duplicates.contains(seq)) without_duplicates.add(seq);
+	 	}	   	    
+	    return without_duplicates;
 	}
 	
-	public static List<String> getCombinations(List<Event> elements, Event obligatory) {
-
-	    //return list with empty String
-	    if(elements.size() == 0){
-	        List<String> allLists = new ArrayList<String>();
-	        allLists.add("");
-	        return allLists ;
-	    }
-
-	    Event first_ele = elements.remove(0);
-	    	    
-	    List<String> rest = getCombinations(elements,obligatory);
-	    int restsize = rest.size();
-	    //Mapping the first_ele with each of the rest of the elements.
-	    for (int i = 0; i < restsize; i++) {
-	        String ele = first_ele.id + "," + rest.get(i) + "," + obligatory.id;
-	        rest.add(ele);
-	        //System.out.println(ele);
-	    }
-
-	    return rest;
+	public static ArrayList<EventSequence> getCombinations(ArrayList<Event> elements, Event obligatory) {
+		
+		ArrayList<EventSequence> with_duplicates = new ArrayList<EventSequence>();
+		
+	    /*** Base case: Obligatory event is a trend ***/
+		if(elements.size() == 0) {
+			
+			ArrayList<Event> events = new ArrayList<Event>();
+			events.add(obligatory);
+			EventSequence seq = new EventSequence(events);		
+			with_duplicates.add(seq);
+						
+		} else {
+				
+			/*** Recursive case: Combine the first event with all other combinations ***/
+			Event first_event = elements.remove(0);  			
+						
+			ArrayList<EventSequence> rest = getCombinations(elements,obligatory);
+			int limit = rest.size();
+						
+			for (int i = 0; i < limit; i++) {
+				ArrayList<Event> events = new ArrayList<Event>();
+				events.add(first_event);
+				events.addAll(rest.get(i).events);		
+				EventSequence seq = new EventSequence(events);
+				rest.add(seq);						
+			}
+			with_duplicates.addAll(rest);
+		}		
+	    return with_duplicates;
 	}
 	
 }

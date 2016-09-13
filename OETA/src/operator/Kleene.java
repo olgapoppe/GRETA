@@ -22,7 +22,7 @@ public static ArrayList<EventSequence> generate (ArrayList<EventSequence> input)
 				for (int j=0; j<input.size(); j++) {					
 					EventSequence simple = input.get(j);				
 					if (complex.getEnd() < simple.getStart()) {		
-						ArrayList<RawEvent> events = new ArrayList<RawEvent>();
+						ArrayList<Event> events = new ArrayList<Event>();
 						events.addAll(complex.events);
 						events.addAll(simple.events);
 						EventSequence e = new EventSequence(events);

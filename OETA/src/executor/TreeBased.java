@@ -19,7 +19,7 @@ public class TreeBased {
 			event_streams.add(events);
 		}		
 		ArrayList<EventSequence> as = event_streams.get(0);
-		ArrayList<EventSequence> bs = event_streams.get(1);
+		//ArrayList<EventSequence> bs = event_streams.get(1);
 		
 		/*// A,B
 		ArrayList<EventSequence> ab = Sequence.generate(as, bs);
@@ -34,12 +34,12 @@ public class TreeBased {
 		System.out.println("Results of (A,B)+: " + ab_plus.toString() + "\nCount: " + ab_plus.size());*/
 		
 		// A+,B	
-		ArrayList<EventSequence> a_plus_b = Sequence.generate(a_plus, bs);
-		System.out.println("Results of A+,B: " + a_plus_b.toString() + "\nCount: " + a_plus_b.size());		
+		//ArrayList<EventSequence> a_plus_b = Sequence.generate(a_plus, bs);
+		//System.out.println("Results of A+,B: " + a_plus_b.toString() + "\nCount: " + a_plus_b.size());		
 		
 		// (A+,B)+
-		ArrayList<EventSequence> a_plus_b__plus = Kleene.generate(a_plus_b);
-		System.out.println("Results of (A+,B)+: " + a_plus_b__plus.toString() + "\nCount: " + a_plus_b__plus.size());	
+		//ArrayList<EventSequence> a_plus_b__plus = Kleene.generate(a_plus_b);
+		//System.out.println("Results of (A+,B)+: " + a_plus_b__plus.toString() + "\nCount: " + a_plus_b__plus.size());	
 		
 		/*// A+,B+
 		ArrayList<EventSequence> b_plus = Kleene.generate(bs);
@@ -58,8 +58,8 @@ public class TreeBased {
 		for (int i=0; i<numbers.length; i++) {
 			int id = Integer.parseInt(numbers[i]);
 			int time = Integer.parseInt(numbers[i]);			
-			RawEvent e = new RawEvent(type,id,time);
-			ArrayList<RawEvent> events = new ArrayList<RawEvent>();
+			Event e = new RawEvent(type,id,time);
+			ArrayList<Event> events = new ArrayList<Event>();
 			events.add(e);
 			EventSequence c = new EventSequence(events);
 			results.add(c);

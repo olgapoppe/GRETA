@@ -10,12 +10,14 @@ public abstract class Event {
 	public int sec;
 	// Mapping of window identifier to the pointers of this event within this window
 	public HashMap<String,ArrayList<Event>> pointers;
-	
+	public boolean flagged;
+		
 	public Event (String t, int i, int s) {
 		id = i;
 		type = t;
 		sec = s;
 		pointers = new HashMap<String,ArrayList<Event>>();
+		flagged = false;
 	}
 	
 	public int getStart() {

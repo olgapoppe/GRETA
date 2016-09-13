@@ -12,7 +12,7 @@ public class Sequence {
 		for (EventSequence e1 : input1) {
 			for (EventSequence e2 : input2) {
 				if (e1.getEnd() < e2.getStart()) {
-					ArrayList<RawEvent> events = new ArrayList<RawEvent>();
+					ArrayList<Event> events = new ArrayList<Event>();
 					events.addAll(e1.events);
 					events.addAll(e2.events);
 					EventSequence e = new EventSequence(events);
