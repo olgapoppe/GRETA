@@ -5,23 +5,25 @@ import event.*;
 
 public class Node {
 	
-	public StockEvent event;
+	public Event event;
 	public ArrayList<Node> previous;
+	public int count;
 			
-	public Node (StockEvent e) {
+	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
+		count = 0;
 	}
 	
 	public boolean equals (Node other) {
-		return this.event.equals(other.event);
+		return event.equals(other.event);
 	}
 	
 	public void connect (Node old_event) {
-		if (!this.previous.contains(old_event)) this.previous.add(old_event);
+		if (!previous.contains(old_event)) previous.add(old_event);
 	}	
 	
 	public String toString() {
-		return event.toString(); 
+		return event.toString() + " with count: " + count; 
 	}
 }

@@ -27,7 +27,7 @@ public class Sase extends Transaction {
 		transaction_number.countDown();
 	}
 	
-	public void computeResults() {
+	public void computeResults () {
 		
 		// Initiate data structures: stack, last events
 		Stack<Event> stack = new Stack<Event>();
@@ -76,9 +76,8 @@ public class Sase extends Transaction {
 		for (Event lastEvent : newLastEvents) {
 			traversePointers(lastEvent, new Stack<Event>(), without_duplicates);
 		}
-		count = without_duplicates.size();
 		System.out.println(without_duplicates);
-
+		count = without_duplicates.size();
 		total_mem.set(total_mem.get() + stack.size() + pointerCount + count);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);
 	}
@@ -108,7 +107,7 @@ public class Sase extends Transaction {
 	    }  	    	    
 	}	
 	
-	public static ArrayList<EventSequence> getIncompleteTrends(ArrayList<Event> elements, ArrayList<EventSequence> without_duplicates) {
+	public static ArrayList<EventSequence> getIncompleteTrends (ArrayList<Event> elements, ArrayList<EventSequence> without_duplicates) {
 		
 		// The new event is obligatory in all new trends
 	    Event obligatory = elements.remove(elements.size()-1);
@@ -123,7 +122,7 @@ public class Sase extends Transaction {
 	    return without_duplicates;
 	}
 	
-	public static ArrayList<EventSequence> getCombinations(ArrayList<Event> elements, Event obligatory) {
+	public static ArrayList<EventSequence> getCombinations (ArrayList<Event> elements, Event obligatory) {
 		
 		ArrayList<EventSequence> with_duplicates = new ArrayList<EventSequence>();
 		
@@ -137,9 +136,8 @@ public class Sase extends Transaction {
 						
 		} else {
 				
-			/*** Recursive case: Combine the first event with all other combinations ***/
-			Event first_event = elements.remove(0);  			
-						
+			/*** Recursive case: Combine the first event with all combinations of other events ***/
+			Event first_event = elements.remove(0);  							
 			ArrayList<EventSequence> rest = getCombinations(elements,obligatory);
 			int limit = rest.size();
 						
@@ -154,6 +152,5 @@ public class Sase extends Transaction {
 			with_duplicates.addAll(rest);
 		}		
 	    return with_duplicates;
-	}
-	
+	}	
 }
