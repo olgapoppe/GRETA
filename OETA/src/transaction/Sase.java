@@ -89,7 +89,7 @@ public class Sase extends Transaction {
 		current_trend.push(event);
 		//System.out.println("pushed " + event.id);
 		
-		// Count all trends with this new event
+		/*** Count all trends with this new event ***/s
 		ArrayList<Event> input = new ArrayList<Event>();
 	    input.addAll(current_trend);
 	    without_duplicates = getIncompleteTrends(input,without_duplicates);
