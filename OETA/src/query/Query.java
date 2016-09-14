@@ -8,6 +8,7 @@ public class Query {
 	public String event_selection_strategy; 
 	// up, down, none 
 	public String predicate_on_adjacent_events;
+	
 	public int window_length;
 	public int window_slide;
 	
@@ -27,6 +28,10 @@ public class Query {
 		} else {
 			return true;
 		}}
+	}
+	
+	public boolean compressible () {
+		return !event_selection_strategy.equals("any") || predicate_on_adjacent_events.equals("none");
 	}
 
 }

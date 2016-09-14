@@ -8,11 +8,13 @@ public class Node {
 	public Event event;
 	public ArrayList<Node> previous;
 	public int count;
+	public boolean marked;
 			
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
 		count = 1;
+		marked = false;
 	}
 	
 	public boolean equals (Node other) {

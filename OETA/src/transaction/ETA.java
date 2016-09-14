@@ -8,11 +8,11 @@ import event.*;
 import graph.*;
 import query.*;
 
-public class CompleteETAgraph extends Transaction {
+public class ETA extends Transaction {
 	
 	Query query;
 	
-	public CompleteETAgraph (Window w, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+	public ETA (Window w, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
 		super(w,o,tn,time,mem);
 		query = q;
 	}
@@ -33,7 +33,7 @@ public class CompleteETAgraph extends Transaction {
 	public void computeResults () {
 		
 		Graph graph = new Graph(); 
-		graph = graph.getCompleteGraph(window.events, query);
+		graph = (query.compressible()) ? graph.getCompressedGraph(window.events, query) : graph.getCompleteGraph(window.events, query);
 		count = graph.final_count;
 		total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);	
 	}

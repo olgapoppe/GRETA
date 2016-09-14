@@ -131,8 +131,8 @@ public class Scheduler implements Runnable {
 	public void execute(Window window) {
 		
 		Transaction transaction;
-		if (algorithm.equals("complete")) {
-			transaction = new CompleteETAgraph(window,query,output,transaction_number,total_cpu,total_memory);
+		if (algorithm.equals("eta")) {
+			transaction = new ETA(window,query,output,transaction_number,total_cpu,total_memory);
 		} else {
 		if (algorithm.equals("sase")) {
 			transaction = new Sase(window,output,transaction_number,total_cpu,total_memory);
