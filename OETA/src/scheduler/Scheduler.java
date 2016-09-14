@@ -15,13 +15,13 @@ public class Scheduler implements Runnable {
 	final EventQueue eventqueue;
 	int firstsec;
 	int lastsec;
-	int window_length;
-	int window_slide;
+		
+	String algorithm;
+		
+	Query query;
 	ArrayDeque<Window> windows;
 	
-	String algorithm;
 	ExecutorService executor;
-	
 	AtomicInteger drProgress;
 	CountDownLatch transaction_number;
 	CountDownLatch done;
@@ -30,19 +30,20 @@ public class Scheduler implements Runnable {
 	AtomicInteger total_memory;
 	OutputFileGenerator output;
 	
-	public Scheduler (EventQueue eq, int first, int last, int wl, int ws, String algo,  
+	public Scheduler (EventQueue eq, int first, int last, String algo,
+			String ess, String pred, int wl, int ws,
 			ExecutorService exe, AtomicInteger dp, CountDownLatch d, AtomicLong time, AtomicInteger mem, OutputFileGenerator o) {	
 		
 		eventqueue = eq;
 		firstsec = first;
 		lastsec = last;
-		window_length = wl;
-		window_slide = ws;
-		windows = new ArrayDeque<Window>();
-		algorithm = algo;
-				
-		executor = exe;
 		
+		algorithm = algo;
+		
+		query = new Query(ess,pred,wl,ws);
+		windows = new ArrayDeque<Window>();
+						
+		executor = exe;
 		drProgress = dp;
 		int window_number = (last-first)/ws + 1;
 		transaction_number = new CountDownLatch(window_number);
@@ -61,18 +62,18 @@ public class Scheduler implements Runnable {
 		/*** Create windows ***/	
 		ArrayDeque<Window> windows2iterate = new ArrayDeque<Window>();
 		int start = firstsec;
-		int end = window_length;
+		int end = query.window_length;
 		while (start <= lastsec) {
 			Window window = new Window(start, end);		
 			windows.add(window);
 			windows2iterate.add(window);
-			start += window_slide;
-			end = (start+window_length > lastsec) ? lastsec : (start+window_length); 
+			start += query.window_slide;
+			end = (start+query.window_length > lastsec) ? lastsec : (start+query.window_length); 
 			//System.out.println(window.toString() + " is created.");
 		}			
 		
 		/*** Set local variables ***/
-		int progress = Math.min(window_slide,lastsec);
+		int progress = Math.min(query.window_slide,lastsec);
 		boolean last_iteration = false;
 									
 		/*** Get the permission to schedule current slide ***/
@@ -104,11 +105,11 @@ public class Scheduler implements Runnable {
 			if (last_iteration) {
 				break;
 			} else {
-				if (progress+window_slide>lastsec) {
+				if (progress+query.window_slide>lastsec) {
 					progress = lastsec;
 					last_iteration = true;
 				} else {
-					progress += window_slide;
+					progress += query.window_slide;
 				}
 			}									
 		}
@@ -129,9 +130,8 @@ public class Scheduler implements Runnable {
 	
 	public void execute(Window window) {
 		
-		Query query = new Query("none");
 		Transaction transaction;
-		if (algorithm.equals("complete-any")) {
+		if (algorithm.equals("complete")) {
 			transaction = new CompleteETAgraph(window,query,output,transaction_number,total_cpu,total_memory);
 		} else {
 		if (algorithm.equals("sase")) {

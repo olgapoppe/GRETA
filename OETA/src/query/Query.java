@@ -4,13 +4,18 @@ import graph.*;
 
 public class Query {
 	
-	//public String event_selection_strategy; 
-	
-	// Predicate can be up, down, none 
+	// any, next, cont
+	public String event_selection_strategy; 
+	// up, down, none 
 	public String predicate_on_adjacent_events;
+	public int window_length;
+	public int window_slide;
 	
-	public Query (String pred) {
+	public Query (String ess, String pred, int wl, int ws) {
+		event_selection_strategy = ess;
 		predicate_on_adjacent_events = pred;		
+		window_length = wl;
+		window_slide = ws;
 	}
 	
 	public boolean compatible (Node previous, Node following) {

@@ -33,7 +33,7 @@ public class CompleteETAgraph extends Transaction {
 	public void computeResults () {
 		
 		Graph graph = new Graph(); 
-		graph = graph.getCompleteGraphUnderSkipTillAnyMatch(window.events, query);
+		graph = graph.getCompleteGraph(window.events, query);
 		count = graph.final_count;
 		total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);	
 	}

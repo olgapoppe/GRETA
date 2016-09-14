@@ -26,7 +26,7 @@ public class Graph {
 		}
 	}
 	
-	public Graph getCompleteGraphUnderSkipTillAnyMatch (ArrayList<Event> events, Query query) {		
+	public Graph getCompleteGraph (ArrayList<Event> events, Query query) {		
 		
 		int curr_sec = -1;				
 		for (Event event : events) {
@@ -43,22 +43,31 @@ public class Graph {
 			// Create and store a new node
 			Node new_node = new Node(event);
 			NodesPerSecond nodes_in_current_second = all_nodes.get(all_nodes.size()-1);
-			nodes_in_current_second.nodes_per_second.add(new_node);		
-			nodeNumber++;
 			
-			// Connect this event to all previous compatible events and compute the count of this node
-			for (NodesPerSecond nodes_per_second : all_nodes) {
-				if (nodes_per_second.second < curr_sec) {
-					for (Node previous_node : nodes_per_second.nodes_per_second) {
-						if(query.compatible(previous_node,new_node)) {
-							new_node.previous.add(previous_node);
-							new_node.count += previous_node.count;							
-							edgeNumber++;						
-			}}}}
-			
-			// Update the final count
-			final_count += new_node.count;
-			System.out.println(new_node.toString());
+			if (query.event_selection_strategy.equals("any") || nodes_in_current_second.nodes_per_second.isEmpty()) {
+				nodes_in_current_second.nodes_per_second.add(new_node);		
+				nodeNumber++;
+						
+				// Connect this event to all previous compatible events and compute the count of this node
+				for (NodesPerSecond nodes_per_second : all_nodes) {
+					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {
+						for (Node previous_node : nodes_per_second.nodes_per_second) {
+							if(query.compatible(previous_node,new_node)) {
+								new_node.previous.add(previous_node);
+								new_node.count += previous_node.count;							
+								edgeNumber++;						
+				}}}}				
+					
+				// Update the final count
+				final_count += new_node.count;
+				System.out.println(new_node.toString());
+			} else {
+				// Mark all previous events as incompatible with all future events under the contiguous strategy
+				if (query.event_selection_strategy.equals("cont")) {
+					for (NodesPerSecond nodes_per_second : all_nodes) {
+						nodes_per_second.marked = true;
+				}}
+			}
 		}		
 		return this;
 	}	
