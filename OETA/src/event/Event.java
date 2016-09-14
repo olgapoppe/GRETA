@@ -13,8 +13,8 @@ public abstract class Event {
 	public boolean flagged;
 		
 	public Event (String t, int i, int s) {
-		id = i;
 		type = t;
+		id = i;		
 		sec = s;
 		pointers = new HashMap<String,ArrayList<Event>>();
 		flagged = false;
@@ -39,6 +39,8 @@ public abstract class Event {
 	}
 	
 	public abstract boolean isRelevant();
+	public abstract boolean up(Event next);
+	public abstract boolean down(Event next);
 	public abstract String toString();
 	
 	/** Print this event with pointers to console */

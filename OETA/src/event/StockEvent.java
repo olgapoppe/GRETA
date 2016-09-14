@@ -36,8 +36,16 @@ public class StockEvent extends Event {
 		return sector > 0;
 	}
 	
+	public boolean up(Event next) {
+		return price < ((StockEvent)next).price;
+	}
+	
+	public boolean down(Event next) {
+		return price > ((StockEvent)next).price;
+	}
+	
 	public String toString() {
-		return ""+ id;
+		return "" + id;
 	}
 	
 	public String toStringComplete() {

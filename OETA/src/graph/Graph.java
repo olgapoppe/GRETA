@@ -1,21 +1,22 @@
 package graph;
 
-import event.Event;
-
 import java.util.ArrayList;
-import java.util.HashMap;
+import event.*;
+import query.*;
 
 public class Graph {
 	
 	// Events per second 
-	public HashMap<Integer,ArrayList<Node>> events_per_second;
+	public ArrayList<NodesPerSecond> all_nodes;
 	public int nodeNumber;
 	public int edgeNumber;	
+	public int final_count;
 		
 	public Graph () {
-		events_per_second = new HashMap<Integer,ArrayList<Node>>();
+		all_nodes = new ArrayList<NodesPerSecond>();
 		nodeNumber = 0;
 		edgeNumber = 0;		
+		final_count = 0;
 	}
 	
 	public void connect (Node old_event, Node new_event) {
@@ -25,78 +26,40 @@ public class Graph {
 		}
 	}
 	
-	public static Graph constructGraphUnderSkipTillAnyMatch (ArrayList<Event> events) {		
+	public Graph getCompleteGraphUnderSkipTillAnyMatch (ArrayList<Event> events, Query query) {		
 		
-		Graph graph = new Graph();
-		int curr_sec = -1;
-				
+		int curr_sec = -1;				
 		for (Event event : events) {
 			
 			//System.out.println("--------------" + event.id);
 			
-			// Update the current second
-			if (curr_sec < event.sec) curr_sec = event.sec;
+			// Update the current second and all_nodes
+			if (curr_sec < event.sec) {
+				curr_sec = event.sec;
+				NodesPerSecond nodes_in_new_second = new NodesPerSecond(curr_sec);
+				all_nodes.add(nodes_in_new_second);				
+			}
 			
 			// Create and store a new node
-			Node node = new Node(event);
+			Node new_node = new Node(event);
+			NodesPerSecond nodes_in_current_second = all_nodes.get(all_nodes.size()-1);
+			nodes_in_current_second.nodes_per_second.add(new_node);		
+			nodeNumber++;
 			
-			// Connect this event to all previous compatible events 
+			// Connect this event to all previous compatible events and compute the count of this node
+			for (NodesPerSecond nodes_per_second : all_nodes) {
+				if (nodes_per_second.second < curr_sec) {
+					for (Node previous_node : nodes_per_second.nodes_per_second) {
+						if(query.compatible(previous_node,new_node)) {
+							new_node.previous.add(previous_node);
+							new_node.count += previous_node.count;							
+							edgeNumber++;						
+			}}}}
 			
-			/*** Case I: This event starts a new sequence. It is a first and a last event. ***/
-			if (graph.last_nodes.isEmpty()) {
-				graph.first_nodes.add(node);
-				node.isFirst = true;
-				graph.last_nodes.add(node);				
-				//System.out.println(event.id + " starts a new sequence.");
-			} else {
-				
-				ArrayList<Node> new_last_nodes = new ArrayList<Node>();
-				ArrayList<Node> old_last_nodes = new ArrayList<Node>();
-								
-				for (Node last : graph.last_nodes) {					
-			
-					/*** Case II: This event is compatible with the last event. Add an edge between last and this. ***/
-					if (last.isCompatible(node)) {
-						graph.connect(last,node);
-						if (!old_last_nodes.contains(last)) old_last_nodes.add(last);
-						if (!new_last_nodes.contains(node)) new_last_nodes.add(node);
-						//System.out.println(last.event.id + " is connected to " + event.id);
-						
-					} else {
-							
-						/*** Case III: This event is compatible with a previous event of the last event. Add an edge between previous and this. ***/
-						boolean first = true;
-						for (Node comp_node : last.previous) {
-							if (comp_node.event.sec<event.sec) {
-								graph.connect(comp_node,node);
-								first = false;
-								//System.out.println(comp_node.event.id + " is connected to " + event.id);
-							}
-						}							 
-						/*** Case I: This event is compatible with no previous event. Add this event to the last nodes. ***/
-						if (first && !graph.first_nodes.contains(node)) {
-							graph.first_nodes.add(node);							
-							node.isFirst = true;
-							//System.out.println(event.id + " starts a new sequence.");
-						}
-						if (!new_last_nodes.contains(node)) {
-							new_last_nodes.add(node);							
-						}					
-					}			
-				}
-				graph.last_nodes.removeAll(old_last_nodes);
-				graph.last_nodes.addAll(new_last_nodes);
-			}
-			// Add the new node to the graph
-			graph.nodes.add(node);
-			
-			int sec = node.event.sec;
-			ArrayList<Node> ns = (graph.events_per_second.containsKey(sec)) ? graph.events_per_second.get(sec) : new ArrayList<Node>();
-			ns.add(node);
-			graph.events_per_second.put(sec,ns);			
-		}
-		//for (Node node : graph.nodes) { System.out.println(node.toString()); }	
-		//System.out.println(graph.printEventNumberPerSecond());
-		return graph;
+			// Update the final count
+			final_count += new_node.count;
+			System.out.println(new_node.toString());
+		}		
+		return this;
 	}	
 }

@@ -23,6 +23,14 @@ public class RawEvent extends Event {
 		return true;
 	}
 	
+	public boolean up(Event next) {
+		return true;
+	}
+	
+	public boolean down(Event next) {
+		return true;
+	}
+	
 	public String toString() {
 		return type + sec;
 	}

@@ -4,12 +4,17 @@ import iogenerator.OutputFileGenerator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import event.Window;
+import event.*;
+import graph.*;
+import query.*;
 
 public class CompleteETAgraph extends Transaction {
 	
-	public CompleteETAgraph (Window w,OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+	Query query;
+	
+	public CompleteETAgraph (Window w, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
 		super(w,o,tn,time,mem);
+		query = q;
 	}
 	
 	public void run () {
@@ -19,7 +24,7 @@ public class CompleteETAgraph extends Transaction {
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);
-		
+				
 		System.out.println("Window " + window.id + " has " + count + " results.");		
 		//writeOutput2File();		
 		transaction_number.countDown();
@@ -27,5 +32,9 @@ public class CompleteETAgraph extends Transaction {
 
 	public void computeResults () {
 		
+		Graph graph = new Graph(); 
+		graph = graph.getCompleteGraphUnderSkipTillAnyMatch(window.events, query);
+		count = graph.final_count;
+		total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);	
 	}
 }

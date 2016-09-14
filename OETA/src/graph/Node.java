@@ -12,7 +12,7 @@ public class Node {
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
-		count = 0;
+		count = 1;
 	}
 	
 	public boolean equals (Node other) {
