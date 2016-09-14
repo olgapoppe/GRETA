@@ -6,15 +6,15 @@ public class StockEvent extends Event {
 	public int company;
 	public int price;
 	
-	public StockEvent (int i, int t, int s, int c, int p) {
-		super("stock", i, t);
+	public StockEvent (int i, int sec, int s, int c, int p) {
+		super("stock", i, sec);
 		sector = s;
 		company = c;
 		price = p;
 	}
 	
-	public boolean equals(StockEvent other) {
-		return this.sec == other.sec && this.sector == other.sector && this.company == other.company && this.price == other.price;
+	public boolean equals (StockEvent other) {
+		return id == other.id;
 	}
 	
 	public static StockEvent parse (String line) {
@@ -22,12 +22,12 @@ public class StockEvent extends Event {
 		String[] values = line.split(",");
 		
 		int i = Integer.parseInt(values[0]);
-		int t = Integer.parseInt(values[1]);
+		int sec = Integer.parseInt(values[1]);
         int s = Integer.parseInt(values[2]);
         int c = Integer.parseInt(values[3]);          	
         int p = Integer.parseInt(values[4]);
     	    	    	
-    	StockEvent event = new StockEvent(i,t,s,c,p);    	
+    	StockEvent event = new StockEvent(i,sec,s,c,p);    	
     	//System.out.println(event.toString());    	
         return event;
 	}

@@ -38,7 +38,7 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String type = "stock";
-	    String path = "iofiles/";
+	    String path = "OETA/src/iofiles/";
 		String inputfile = "stream.txt";
 		String outputfile = "sequences.txt";		
 		
