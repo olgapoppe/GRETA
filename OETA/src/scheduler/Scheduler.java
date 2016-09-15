@@ -134,11 +134,14 @@ public class Scheduler implements Runnable {
 		if (algorithm.equals("eta")) {
 			transaction = new ETA(window,query,output,transaction_number,total_cpu,total_memory);
 		} else {
+		if (algorithm.equals("aseq")) {
+			transaction = new Aseq(window,output,transaction_number,total_cpu,total_memory);
+		} else {
 		if (algorithm.equals("sase")) {
 			transaction = new Sase(window,output,transaction_number,total_cpu,total_memory);
 		} else {
 			transaction = new Echo(window,output,transaction_number,total_cpu,total_memory);
-		}}
+		}}}
 		executor.execute(transaction);	
 	}	
 }
