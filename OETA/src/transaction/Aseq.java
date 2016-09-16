@@ -59,5 +59,6 @@ public class Aseq extends Transaction {
 				//System.out.println("Event " + event.id + " length: " + length + " counts: " + count_of_new_matches + " " + count_of_old_matches );	
 			}				
 		}
+		total_mem.set(total_mem.get() + prefix_counters_in_previous_second.size() + prefix_counters_in_current_second.size());	
 	}
 }
