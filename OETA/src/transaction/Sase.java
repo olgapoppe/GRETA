@@ -7,11 +7,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import event.*;
 import iogenerator.*;
+import query.Query;
 
 public class Sase extends Transaction {
 	
-	public Sase (Window w,OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+	Query query;
+	
+	public Sase (Window w, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
 		super(w,o,tn,time,mem);
+		query = q;
 	}
 	
 	public void run () {
@@ -38,6 +42,8 @@ public class Sase extends Transaction {
 		
 		for (Event event : window.events) {
 			
+			boolean added = false;
+			
 			if (!event.pointers.containsKey(window.id)) {
 				ArrayList<Event> new_pointers = new ArrayList<Event>();
 				event.pointers.put(window.id, new_pointers);
@@ -54,28 +60,40 @@ public class Sase extends Transaction {
 						pointers.add(last);
 						pointerCount++;
 				}}
-				newLastEvents.add(event);
+				if (query.event_selection_strategy.equals("any")) {
+					newLastEvents.add(event);
+					added = true;
+				}
 			} else {
+				// Update last events and draw pointers from event to all last events
 				lastEvents.clear();
 				lastEvents.addAll(newLastEvents);
 				for (Event last : lastEvents) {
-					if (!pointers.contains(last)) {
+					if (!pointers.contains(last) && !last.marked) {
 						pointers.add(last);
 						pointerCount++;
 				}}
 				newLastEvents.clear();
 				newLastEvents.add(event);
+				added = true;
 				curr_sec = event.sec;
 			}			
-			// Store the event in a stack
-			stack.add(event);
+			// Store the event in a stack or mark all events as incompatible with all future events
+			if (added) {
+				stack.add(event);
+			} else {
+				if (query.event_selection_strategy.equals("cont")) 
+					for (Event e : stack) 
+						e.marked = true;						
+			}
 			//System.out.println(window.id + " " + event.toStringWithPointers(window.id));
 		}		
 		// For each new last event, traverse the pointers to extract trends
 		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();
-		for (Event lastEvent : newLastEvents) {
-			traversePointers(lastEvent, new Stack<Event>(), without_duplicates);
-		}
+		for (Event lastEvent : newLastEvents) 
+			if (!lastEvent.marked)
+				traversePointers(lastEvent, new Stack<Event>(), without_duplicates);
+		
 		System.out.println(without_duplicates);
 		count = without_duplicates.size();
 		total_mem.set(total_mem.get() + stack.size() + pointerCount + count);
@@ -107,7 +125,7 @@ public class Sase extends Transaction {
 	    }  	    	    
 	}	
 	
-	public static ArrayList<EventSequence> getIncompleteTrends (ArrayList<Event> elements, ArrayList<EventSequence> without_duplicates) {
+	public ArrayList<EventSequence> getIncompleteTrends (ArrayList<Event> elements, ArrayList<EventSequence> without_duplicates) {
 		
 		// The new event is obligatory in all new trends
 	    Event obligatory = elements.remove(elements.size()-1);
@@ -117,12 +135,13 @@ public class Sase extends Transaction {
 	      
 	    // Eliminate duplicates
 	 	for (EventSequence seq : with_duplicates) {
-	 		if (!seq.allFlagged() && !without_duplicates.contains(seq)) without_duplicates.add(seq);
+	 		if (!seq.allFlagged() && !without_duplicates.contains(seq)) 
+	 			without_duplicates.add(seq);
 	 	}	   	    
 	    return without_duplicates;
 	}
 	
-	public static ArrayList<EventSequence> getCombinations (ArrayList<Event> elements, Event obligatory) {
+	public ArrayList<EventSequence> getCombinations (ArrayList<Event> elements, Event obligatory) {
 		
 		ArrayList<EventSequence> with_duplicates = new ArrayList<EventSequence>();
 		
@@ -143,11 +162,16 @@ public class Sase extends Transaction {
 						
 			for (int i = 0; i < limit; i++) {
 				
-				ArrayList<Event> events = new ArrayList<Event>();
-				events.add(first_event);
-				events.addAll(rest.get(i).events);		
-				EventSequence seq = new EventSequence(events);
-				rest.add(seq);	
+				if (query.event_selection_strategy.equals("any") || 
+					first_event.pointers.get(window.id).contains(rest.get(i).events.get(0))) { 
+					// first_event has a pointer to the fist event of the rest 
+				
+					ArrayList<Event> events = new ArrayList<Event>();
+					events.add(first_event);
+					events.addAll(rest.get(i).events);		
+					EventSequence seq = new EventSequence(events);
+					rest.add(seq);	
+				}
 			}
 			with_duplicates.addAll(rest);
 		}		

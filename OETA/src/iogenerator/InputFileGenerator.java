@@ -18,7 +18,7 @@ public class InputFileGenerator {
 		/*** Set default input parameters ***/
 		String type = "stock";
 		boolean real = false;
-		String path = "OETA/src/iofiles/";
+		String path = "src/iofiles/";
 		String i_file_1 = "stream.txt";
 		String i_file_2 = "stream.txt";
 		String o_file = "stream.txt";
@@ -57,9 +57,10 @@ public class InputFileGenerator {
 					String input_2 = path + i_file_2;
 					twoInputsOneOutput (input_1, input_2, output);
 				} else {
+					int id = 1;
 					for (int sec=1; sec<=last_sec; sec++) 
 						for (int count=1; count<=total_rate; count++) 
-							generate_stock_stream(output, sec, count, matched_rate, lambda);	
+							generate_stock_stream(output, id++, sec, count, matched_rate, lambda);	
 				}
 			} else {
 				for (int sec=1; sec<=last_sec; sec++) 
@@ -73,7 +74,7 @@ public class InputFileGenerator {
 		} catch (IOException e) { e.printStackTrace(); }	
 	}
 	
-	public static void generate_stock_stream (BufferedWriter output, int sec, int count, int matched_rate, double lambda) {
+	public static void generate_stock_stream (BufferedWriter output, int id, int sec, int count, int matched_rate, double lambda) {
 		
 		Random random = new Random();
 		        
@@ -93,9 +94,9 @@ public class InputFileGenerator {
             prod *= random.nextDouble();
         
         // Save this event in the file
-        String event = count + "," + sec + "," + sector + "," + company + "," + price + "\n";
+        String event = id + "," + sec + "," + sector + "," + company + "," + price + "\n";
         try { output.append(event); } catch (IOException e) { e.printStackTrace(); }
-        System.out.println("id " + count + " sec " + sec + " sector " + sector + " company " + company + " price " + price);
+        System.out.println("id " + id + " sec " + sec + " sector " + sector + " company " + company + " price " + price);
 	}
 	
 	public static void generate_cluster_stream (BufferedWriter output, int sec, int count, int matched_rate, double lambda) {
