@@ -9,14 +9,14 @@ public class StockEvent extends Event {
 	public String trtype;
 	
 	public StockEvent (int i, int sec, int s, String c, int p) {
-		super("stock", i, sec);
+		super(i, sec);
 		sector = s;
 		company = c;
 		price = p;
 	}
 	
 	public StockEvent (int i, int sec, int s, String c, double p, int vol, String trt) {
-		super("stock", i, sec);
+		super(i, sec);
 		sector = s;
 		company = c;
 		price = p;

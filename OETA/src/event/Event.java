@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 public abstract class Event {
 	
-	public String type;
 	public int id;
 	public int sec;
 	// Mapping of window identifier to the pointers of this event within this window
@@ -13,8 +12,7 @@ public abstract class Event {
 	public boolean flagged;
 	public boolean marked;
 		
-	public Event (String t, int i, int s) {
-		type = t;
+	public Event (int i, int s) {
 		id = i;		
 		sec = s;
 		pointers = new HashMap<String,ArrayList<Event>>();

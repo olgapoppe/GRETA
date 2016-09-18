@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Stack;
+
 import event.*;
 
 public class InputFileGenerator {
@@ -66,6 +67,7 @@ public class InputFileGenerator {
 							generate_stock_stream(output, id++, sec, count, matched_rate, lambda);	
 				}
 			} else {
+			//if (type.equals("cluster")) {
 				Random random = new Random();
 				int min = 0;
 	        	int max = 3000;
@@ -74,7 +76,9 @@ public class InputFileGenerator {
 					for (int count=1; count<=rate; count++) 			
 						generate_cluster_stream(output, sec, id++, lambda);
 				}
-			}					
+			//} else {
+				
+			}//}
 			// Close the file
 			output.close();
 			System.out.println("Done!");
@@ -82,31 +86,7 @@ public class InputFileGenerator {
 		} catch (IOException e) { e.printStackTrace(); }	
 	}
 	
-	public static void generate_stock_stream (BufferedWriter output, int id, int sec, int count, int matched_rate, double lambda) {
-		
-		Random random = new Random();
-		        
-        // Sector identifier determines event relevance: 1 for relevant, 0 for irrelevant
-        int sector = (count <= matched_rate) ? 1 : 0;
-        
-        // Company identifier is a random value in a range between min and max
-        int min = 1;
-        int max = 3;
-        int company = random.nextInt((max - min) + 1) + min;        
-        
-        // Poisson distribution of price
-        double limit = Math.exp(-lambda);
-		double prod = random.nextDouble();
-        int price;
-        for (price = 0; prod >= limit; price++)
-            prod *= random.nextDouble();
-        
-        // Save this event in the file
-        String event = id + "," + sec + "," + sector + "," + company + "," + price + "\n";
-        try { output.append(event); } catch (IOException e) { e.printStackTrace(); }
-        System.out.println("id " + id + " sec " + sec + " sector " + sector + " company " + company + " price " + price);
-	}
-	
+	/*** SYNTHETIC CLUSER ***/
 	public static void generate_cluster_stream (BufferedWriter output, int sec, int id, double lambda) {
 		
 		Random random = new Random();
@@ -135,6 +115,33 @@ public class InputFileGenerator {
         //System.out.println("id " + count + "sec " + sec + " mapper " + mapper + " job " + job + " cpu " + cpu + " mem " + memory + " load " + load);
 	}
 	
+	/*** SYNTHETIC STOCK ***/
+	public static void generate_stock_stream (BufferedWriter output, int id, int sec, int count, int matched_rate, double lambda) {
+		
+		Random random = new Random();
+		        
+        // Sector identifier determines event relevance: 1 for relevant, 0 for irrelevant
+        int sector = (count <= matched_rate) ? 1 : 0;
+        
+        // Company identifier is a random value in a range between min and max
+        int min = 1;
+        int max = 3;
+        int company = random.nextInt((max - min) + 1) + min;        
+        
+        // Poisson distribution of price
+        double limit = Math.exp(-lambda);
+		double prod = random.nextDouble();
+        int price;
+        for (price = 0; prod >= limit; price++)
+            prod *= random.nextDouble();
+        
+        // Save this event in the file
+        String event = id + "," + sec + "," + sector + "," + company + "," + price + "\n";
+        try { output.append(event); } catch (IOException e) { e.printStackTrace(); }
+        System.out.println("id " + id + " sec " + sec + " sector " + sector + " company " + company + " price " + price);
+	}
+	
+	/*** REAL STOCK ***/
 	public static void readInReverseOrder(String input_file_name, BufferedWriter output) throws IOException {
 
 		//String input = "../../stock_data/TimeAndSales_AMAT_210019836.txt";
@@ -160,7 +167,7 @@ public class InputFileGenerator {
 	    }
 	}
 	
-	/****************************************************************************
+	/***
 	 * Open 2 input files and 1 output file, call the method and close all files.
 	 * @param first input file
 	 * @param second input file

@@ -9,7 +9,7 @@ public class ClusterEvent extends Event {
 	public int load;
 	
 	public ClusterEvent (int i, int sec, int m, int j, int c, int mem, int l) {
-		super("cluster", i, sec);
+		super(i, sec);
 		mapper = m;
 		job = j;
 		cpu = c;

@@ -2,8 +2,11 @@ package event;
 
 public class RawEvent extends Event {
 	
-	public RawEvent (String t, int i, int s) {
-		super(t,i,s);
+	String type;
+	
+	public RawEvent (int i, int s, String t) {
+		super(i,s);
+		type = t;
 	}	
 	
 	public static RawEvent parse (String line) {
@@ -14,7 +17,7 @@ public class RawEvent extends Event {
 		int i = Integer.parseInt(values[1]);
 		int s = Integer.parseInt(values[1]);
 	           	    	    	
-    	RawEvent event = new RawEvent(t,i,s);    	
+    	RawEvent event = new RawEvent(i,s,t);    	
     	//System.out.println(event.toString());    	
         return event;
 	}
