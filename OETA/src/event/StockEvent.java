@@ -43,6 +43,23 @@ public class StockEvent extends Event {
         return event;
 	}
 	
+	public static StockEvent parse3 (String line) {
+		
+		String[] values = line.split(", ");
+		
+		int i = Integer.parseInt(values[0]);
+		int sec = Integer.parseInt(values[1]);
+        int s = Integer.parseInt(values[2]);
+        String c = values[3];          	
+        double p = Double.parseDouble(values[4]);  
+        int v = Integer.parseInt(values[5]);
+        String t = values[6]; 
+    	    	    	
+    	StockEvent event = new StockEvent(i,sec,s,c,p,v,t);    	
+    	//System.out.println(event.toString());    	
+        return event;
+	}
+	
 	public static StockEvent parse2 (String line) {
 		
 		String[] values = line.split(" ");
@@ -86,5 +103,9 @@ public class StockEvent extends Event {
 	
 	public String toStringComplete() {
 		return "id " + id + "sec " + sec + " sector " + sector + " company " + company + " price " + price;
+	}
+	
+	public String toFile() {
+		return id + ", " + sec + ", " + sector + ", " + company + ", " + price + ", " + volume + ", " + trtype + "\n";
 	}
 }

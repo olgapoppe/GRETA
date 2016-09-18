@@ -3,6 +3,7 @@ package iogenerator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,24 +49,31 @@ public class InputFileGenerator {
 			String output_file_name = path + o_file; 
 			File output_file = new File(output_file_name);
 			BufferedWriter output = new BufferedWriter(new FileWriter(output_file));
-		
+			int id = 1;
+			
 			// Generate input event stream
 			if (type.equals("stock")) {		
 				if (real) {
 					String input_1 = path + i_file_1;
 					//readInReverseOrder(input_1, output);
-					String input_2 = path + i_file_2;
-					twoInputsOneOutput (input_1, input_2, output);
-				} else {
-					int id = 1;
+					//String input_2 = path + i_file_2;
+					//twoInputsOneOutput (input_1, input_2, output);
+					//transform(input_1,output);
+					replicate(input_1,output);
+				} else {					
 					for (int sec=1; sec<=last_sec; sec++) 
 						for (int count=1; count<=total_rate; count++) 
 							generate_stock_stream(output, id++, sec, count, matched_rate, lambda);	
 				}
 			} else {
-				for (int sec=1; sec<=last_sec; sec++) 
-					for (int count=1; count<=total_rate; count++) 			
-						generate_cluster_stream(output, sec, count, matched_rate, lambda);
+				Random random = new Random();
+				int min = 0;
+	        	int max = 3000;
+				for (int sec=1; sec<=last_sec; sec++) {					
+		        	int rate = random.nextInt((max - min) + 1) + min;
+					for (int count=1; count<=rate; count++) 			
+						generate_cluster_stream(output, sec, id++, lambda);
+				}
 			}					
 			// Close the file
 			output.close();
@@ -99,16 +107,14 @@ public class InputFileGenerator {
         System.out.println("id " + id + " sec " + sec + " sector " + sector + " company " + company + " price " + price);
 	}
 	
-	public static void generate_cluster_stream (BufferedWriter output, int sec, int count, int matched_rate, double lambda) {
+	public static void generate_cluster_stream (BufferedWriter output, int sec, int id, double lambda) {
 		
 		Random random = new Random();
 		        
-        // Mapper identifier determines event relevance: 1 for relevant, 0 for irrelevant
-        int mapper = (count <= matched_rate) ? 1 : 0;
-        
-        // Job identifier, cpu and memory measurements are random values in a range between min and max
+		// Mapper identifier, job identifier, cpu and memory measurements are random values in a range between min and max
         int min = 1;
         int max = 10;
+        int mapper = random.nextInt((max - min) + 1) + min;
         int job = random.nextInt((max - min) + 1) + min;       
         
         int min2 = 1;
@@ -124,9 +130,9 @@ public class InputFileGenerator {
             prod *= random.nextDouble();
         
         // Save this event in the file
-        String event = count + "," + sec + "," + mapper + "," + job + "," + cpu + "," + memory + "," + load + "\n";
+        String event = id + "," + sec + "," + mapper + "," + job + "," + cpu + "," + memory + "," + load + "\n";
         try { output.append(event); } catch (IOException e) { e.printStackTrace(); }
-        System.out.println("id " + count + "sec " + sec + " mapper " + mapper + " job " + job + " cpu " + cpu + " mem " + memory + " load " + load);
+        //System.out.println("id " + count + "sec " + sec + " mapper " + mapper + " job " + job + " cpu " + cpu + " mem " + memory + " load " + load);
 	}
 	
 	public static void readInReverseOrder(String input_file_name, BufferedWriter output) throws IOException {
@@ -260,7 +266,70 @@ public class InputFileGenerator {
 		} catch (IOException e) { System.err.println(e); }	
 		System.out.println("Count: " + count);
 	}
-}	
 	
+	/*** Add sector, transform the time stamp to second, separate attribute values by commas ***/
+	public static void transform (String inputfilename, BufferedWriter output) {
+		
+		File input_file = new File(inputfilename);
+		Scanner input;
+		try { 
+			input = new Scanner(input_file); 
+			
+			String eventString = input.nextLine();
+			StockEvent event = StockEvent.parse2(eventString);
+				
+			while (event != null) {
+			
+				// Write event
+				try { output.write(event.toFile()); } catch (IOException e) { e.printStackTrace(); }
+		
+				// Reset event
+				if (input.hasNextLine()) {
+					eventString = input.nextLine();
+					event = StockEvent.parse2(eventString);
+				} else {
+					event = null;
+				}			
+			}
+		} catch (FileNotFoundException e1) { e1.printStackTrace(); }
+	}
 	
+	/*** Replicate each event 10 times, change company name and sector, replace identifier ***/
+	public static void replicate (String inputfilename, BufferedWriter output) {
+		
+		File input_file = new File(inputfilename);
+		Scanner input;
+		try { 
+			input = new Scanner(input_file); 
+			
+			String eventString = input.nextLine();
+			StockEvent event = StockEvent.parse3(eventString);			
+			int id = 1;
+				
+			while (event != null) {
+			
+				try { 
+					// Write event
+					event.id = id++;
+					output.write(event.toFile()); 
+					// Replicate event
+					for (int count=1; count<=10; count++) {
+						event.id = id++;
+						event.company = count + "" + count + "" + count;
+						event.sector = count;
+						output.write(event.toFile()); 
+					}				
+				} catch (IOException e) { e.printStackTrace(); }
+		
+				// Reset event
+				if (input.hasNextLine()) {
+					eventString = input.nextLine();
+					event = StockEvent.parse3(eventString);
+				} else {
+					event = null;
+				}			
+			}
+		} catch (FileNotFoundException e1) { e1.printStackTrace(); }
+	}
 	
+}		
