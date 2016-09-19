@@ -85,6 +85,10 @@ public class StockEvent extends Event {
         return event;
 	}
 	
+	public String getSubstreamid() {
+		return sector + "_" + company;
+	}
+	
 	public boolean isRelevant() {
 		return sector > 0;
 	}

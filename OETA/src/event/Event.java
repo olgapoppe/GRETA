@@ -30,14 +30,21 @@ public abstract class Event {
 	
 	public static Event parse (String line, String type) {
 		Event event;
-		if (type == "raw") { 
+		if (type.equals("raw")) { 
 			event = RawEvent.parse(line); 
-		} else { 
+		} else {
+		if (type.equals("cluster")) { 
+			event = ClusterEvent.parse(line); 
+		} else {
+		if (type.equals("stock")) { 
 			event = StockEvent.parse(line); 
-		}
+		} else  {
+			event = PositionReport.parse(line);
+		}}}
 		return event;
 	}
 	
+	public abstract String getSubstreamid();
 	public abstract boolean isRelevant();
 	public abstract boolean up(Event next);
 	public abstract boolean down(Event next);

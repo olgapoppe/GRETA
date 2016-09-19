@@ -47,10 +47,10 @@ public class Main {
 	    int lastsec = 0;
 		String algorithm = "echo";
 		
+		String ess = "any";
+		String predicate = "none";		
 		int window_length = 0;
 		int window_slide = 0;
-		String predicate = "none";
-		String ess = "any";
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -61,10 +61,10 @@ public class Main {
 			if (args[i].equals("-from")) 		firstsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-to")) 			lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = args[++i];
+			if (args[i].equals("-ess")) 		ess = args[++i];
+			if (args[i].equals("-pred")) 		predicate = args[++i];
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
-			if (args[i].equals("-pred")) 		predicate = args[++i];
-			if (args[i].equals("-ess")) 		ess = args[++i];
 			
 		}
 	    String input = path + inputfile;

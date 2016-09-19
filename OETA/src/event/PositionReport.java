@@ -10,8 +10,8 @@ public class PositionReport extends Event {
 	public int seg;
 	public int pos;	
 	
-	public PositionReport (int i, int sec, int v, int s, int x, int l, int d, int s1, int p) {
-		super(i, sec);
+	public PositionReport (int sec, int v, int s, int x, int l, int d, int s1, int p) {
+		super(0, sec);
 		vid = v;
 		spd = s;
 		xway = x;
@@ -26,7 +26,7 @@ public class PositionReport extends Event {
 	 * @param line	
 	 * @return position report
 	 */
-	public static PositionReport parse (String line, int id) {
+	public static PositionReport parse (String line) {
 		
 		String[] values = line.split(",");
 		
@@ -39,13 +39,29 @@ public class PositionReport extends Event {
     	int new_seg = Integer.parseInt(values[7]);
     	int new_pos = Integer.parseInt(values[8]);    
     	    	    	
-    	PositionReport event = new PositionReport(id, new_sec, new_vid, new_spd, new_xway, new_lane, new_dir, new_seg, new_pos);    	
+    	PositionReport event = new PositionReport(new_sec, new_vid, new_spd, new_xway, new_lane, new_dir, new_seg, new_pos);    	
     	//System.out.println(event.toString());    	
         return event;
 	}
 	
-	public boolean equals (StockEvent other) {
-		return id == other.id;
+	/**
+	 * Determine whether this position report is equal to the given position report. 
+	 * @param e	position report
+	 * @return boolean
+	 */	
+	public boolean equals (PositionReport e) {
+		return 	sec == e.sec &&				
+				vid == e.vid &&
+				spd == e.spd &&
+				xway == e.xway &&
+				lane == e.lane &&
+				dir == e.dir &&
+				seg == e.seg &&
+				pos == e.pos;
+	}	
+	
+	public String getSubstreamid() {
+		return vid + "";
 	}
 	
 	/** 

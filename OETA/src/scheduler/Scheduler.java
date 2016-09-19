@@ -1,6 +1,7 @@
 package scheduler;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,12 +88,17 @@ public class Scheduler implements Runnable {
 				
 				/*** Fill windows with events ***/
 				for (Window window : windows2iterate) {
-					if (window.relevant(e)) window.events.add(e); 
+					if (window.relevant(e)) {
+						String substream_id = event.getSubstreamid();
+						ArrayList<Event> substream = (window.substreams.containsKey(substream_id)) ? window.substreams.get(substream_id) : new ArrayList<Event>();
+						substream.add(e);
+						window.substreams.put(substream_id,substream); 
+					}
 				}
 				/*** Poll an expired window and submit it for execution ***/
 				if (!windows2iterate.isEmpty() && windows2iterate.getFirst().expired(e)) {					
 					Window window = windows2iterate.poll();
-					if (window.events.size() > 1) {
+					if (window.substreams.size() > 1) {
 						System.out.println(window.toString());
 						execute(window);				
 					} else {
@@ -115,7 +121,7 @@ public class Scheduler implements Runnable {
 		}
 		/*** Poll the last windows and submit them for execution ***/
 		for (Window window : windows2iterate) {
-			if (window.events.size() > 1) {
+			if (window.substreams.size() > 1) {
 				System.out.println(window.toString());
 				execute(window);			
 			} else {

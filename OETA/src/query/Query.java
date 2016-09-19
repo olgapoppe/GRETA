@@ -20,6 +20,7 @@ public class Query {
 	}
 	
 	public boolean compatible (Node previous, Node following) {
+		
 		if (predicate_on_adjacent_events.equals("up")) {
 			return previous.event.up(following.event);
 		} else {
@@ -27,7 +28,7 @@ public class Query {
 			return previous.event.down(following.event);	
 		} else {
 			return true;
-		}}
+		}} 		
 	}
 	
 	public boolean compressible () {

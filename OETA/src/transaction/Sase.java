@@ -1,10 +1,12 @@
 package transaction;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import iogenerator.*;
 import query.Query;
@@ -33,6 +35,17 @@ public class Sase extends Transaction {
 	
 	public void computeResults () {
 		
+		Set<String> substream_ids = window.substreams.keySet();
+		
+		for (String substream_id : substream_ids) {					
+		 
+			ArrayList<Event> events = window.substreams.get(substream_id);
+			computeResults(events);
+		}
+	}
+	
+	public void computeResults (ArrayList<Event> events) {
+		
 		// Initiate data structures: stack, last events
 		Stack<Event> stack = new Stack<Event>();
 		ArrayList<Event> lastEvents = new ArrayList<Event>();
@@ -40,7 +53,7 @@ public class Sase extends Transaction {
 		int curr_sec = -1;
 		int pointerCount = 0;
 		
-		for (Event event : window.events) {
+		for (Event event : events) {
 			
 			boolean added = false;
 			
@@ -95,7 +108,7 @@ public class Sase extends Transaction {
 				traversePointers(lastEvent, new Stack<Event>(), without_duplicates);
 		
 		System.out.println(without_duplicates);
-		count = without_duplicates.size();
+		count += without_duplicates.size();
 		total_mem.set(total_mem.get() + stack.size() + pointerCount + count);
 		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);
 	}

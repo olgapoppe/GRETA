@@ -22,6 +22,10 @@ public class RawEvent extends Event {
         return event;
 	}
 	
+	public String getSubstreamid() {
+		return "";
+	}
+	
 	public boolean isRelevant() {
 		return true;
 	}

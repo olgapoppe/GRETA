@@ -1,20 +1,22 @@
 package event;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Window {
 	
 	public String id;
 	public int start;
 	public int end;
-	public ArrayList<Event> events;
+	// Graph per sub-stream identifier
+	public HashMap<String,ArrayList<Event>> substreams;
 	public int event_number;
 		
 	public Window (int s, int e) {
 		id = s + "-" + e;
 		start = s;
 		end = e;
-		events = new ArrayList<Event>();
+		substreams = new HashMap<String,ArrayList<Event>>();
 		event_number = 0;
 	}
 
@@ -32,7 +34,6 @@ public class Window {
 	}
 	
 	public String toString() {
-		return "[" + start + "," + end + "] with " + events.size() + " events.";
+		return "[" + start + "," + end + "] with " + substreams.size() + " substreams.";
 	}
-
 }

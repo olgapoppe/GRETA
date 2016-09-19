@@ -1,6 +1,9 @@
 package transaction;
 
 import iogenerator.OutputFileGenerator;
+
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,9 +35,15 @@ public class ETA extends Transaction {
 
 	public void computeResults () {
 		
-		Graph graph = new Graph(); 
-		graph = (query.compressible()) ? graph.getCompressedGraph(window.events, query) : graph.getCompleteGraph(window.events, query);
-		count = graph.final_count;
-		total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);	
+		Set<String> substream_ids = window.substreams.keySet();
+					
+		for (String substream_id : substream_ids) {					
+		 
+			ArrayList<Event> events = window.substreams.get(substream_id);
+			Graph graph = new Graph();
+			graph = (query.compressible()) ? graph.getCompressedGraph(events, query) : graph.getCompleteGraph(events, query);
+			count += graph.final_count;
+			total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);
+		}
 	}
 }

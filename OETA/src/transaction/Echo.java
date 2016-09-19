@@ -1,8 +1,11 @@
 package transaction;
 
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 import iogenerator.*;
 
@@ -24,7 +27,14 @@ public class Echo extends Transaction {
 		transaction_number.countDown();
 	}
 	
-	public void computeResults() {		
-		for (Event event : window.events) System.out.println(event.toString());
+	public void computeResults() {	
+
+		Set<String> substream_ids = window.substreams.keySet();
+		
+		for (String substream_id : substream_ids) {					
+		 
+			ArrayList<Event> events = window.substreams.get(substream_id);
+			for (Event event : events) System.out.println(event.toString());
+		}		
 	}
 }
