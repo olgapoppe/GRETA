@@ -33,6 +33,7 @@ public class Aseq extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			computeResults(events);
 		}
+		System.out.println("Count: " + count);
 	}
 	
 	public void computeResults (ConcurrentLinkedQueue<Event> events) {
