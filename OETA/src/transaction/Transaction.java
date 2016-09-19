@@ -8,15 +8,17 @@ import iogenerator.*;
 
 public abstract class Transaction implements Runnable {
 	
-	public Window window;
+	public Stream stream;
+	int limit;
 	OutputFileGenerator output;
 	public CountDownLatch transaction_number;	
 	AtomicLong total_cpu;
 	AtomicInteger total_mem;
 	public int count;
 	
-	public Transaction (Window w, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		window = w;		
+	public Transaction (Stream str, int l, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		stream = str;	
+		limit = l;
 		output = o; 
 		transaction_number = tn;
 		total_cpu = time;

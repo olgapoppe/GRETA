@@ -7,15 +7,14 @@ public abstract class Event {
 	
 	public int id;
 	public int sec;
-	// Mapping of window identifier to the pointers of this event within this window
-	public HashMap<String,ArrayList<Event>> pointers;
+	public ArrayList<Event> pointers;
 	public boolean flagged;
 	public boolean marked;
 		
 	public Event (int i, int s) {
 		id = i;		
 		sec = s;
-		pointers = new HashMap<String,ArrayList<Event>>();
+		pointers = new ArrayList<Event>();
 		flagged = false;
 		marked = false;
 	}
@@ -51,10 +50,9 @@ public abstract class Event {
 	public abstract String toString();
 	
 	/** Print this event with pointers to console */
-	public String toStringWithPointers(String widnow_id) {
-		ArrayList<Event> predecessors = pointers.get(widnow_id);
+	public String toStringWithPointers() {
 		String s = id + " : ";
-		for (Event predecessor : predecessors) {
+		for (Event predecessor : pointers) {
 			s += predecessor.id + ",";
 		}
 		return s;

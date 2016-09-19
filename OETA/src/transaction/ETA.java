@@ -4,6 +4,7 @@ import iogenerator.OutputFileGenerator;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,8 +16,8 @@ public class ETA extends Transaction {
 	
 	Query query;
 	
-	public ETA (Window w, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		super(w,o,tn,time,mem);
+	public ETA (Stream str, int l, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		super(str,l,o,tn,time,mem);
 		query = q;
 	}
 	
@@ -26,24 +27,24 @@ public class ETA extends Transaction {
 		computeResults();
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
-		total_cpu.set(total_cpu.get() + duration);
-				
-		System.out.println("Window " + window.id + " has " + count + " results.");		
-		//writeOutput2File();		
+		
+		total_cpu.set(total_cpu.get() + duration);				
 		transaction_number.countDown();
 	}
 
 	public void computeResults () {
 		
-		Set<String> substream_ids = window.substreams.keySet();
-					
+		Set<String> substream_ids = stream.substreams.keySet();					
 		for (String substream_id : substream_ids) {					
 		 
-			ArrayList<Event> events = window.substreams.get(substream_id);
+			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			Graph graph = new Graph();
-			graph = (query.compressible()) ? graph.getCompressedGraph(events, query) : graph.getCompleteGraph(events, query);
+			graph = (query.compressible()) ? 
+					graph.getCompressedGraph(events, limit, query) : 
+					graph.getCompleteGraph(events, limit, query);
 			count += graph.final_count;
 			total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);
 		}
+		System.out.println("Count: " + count);
 	}
 }

@@ -9,14 +9,9 @@ public class Query {
 	// up, down, none 
 	public String predicate_on_adjacent_events;
 	
-	public int window_length;
-	public int window_slide;
-	
-	public Query (String ess, String pred, int wl, int ws) {
+	public Query (String ess, String pred) {
 		event_selection_strategy = ess;
-		predicate_on_adjacent_events = pred;		
-		window_length = wl;
-		window_slide = ws;
+		predicate_on_adjacent_events = pred;
 	}
 	
 	public boolean compatible (Node previous, Node following) {

@@ -11,11 +11,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import iogenerator.*;
+import query.Query;
 import event.*;
 import scheduler.*;
  
-// -path src/iofiles/ -from 1 -to 3 -wl 3 -ws 3
-
 public class Main {
 	
 	/**
@@ -42,15 +41,10 @@ public class Main {
 		String inputfile = "stream.txt";
 		String outputfile = "sequences.txt";		
 		
-		boolean realtime = true;
-		int firstsec = 0;
-	    int lastsec = 0;
 		String algorithm = "echo";
 		
 		String ess = "any";
 		String predicate = "none";		
-		int window_length = 0;
-		int window_slide = 0;
 		int events_per_window = Integer.MAX_VALUE;
 				
 		// Read input parameters
@@ -58,14 +52,9 @@ public class Main {
 	    	if (args[i].equals("-type")) 		type = args[++i];
 			if (args[i].equals("-path")) 		path = args[++i];
 			if (args[i].equals("-file")) 		inputfile = args[++i];
-			if (args[i].equals("-realtime")) 	realtime = Integer.parseInt(args[++i]) == 1;
-			if (args[i].equals("-from")) 		firstsec = Integer.parseInt(args[++i]);
-			if (args[i].equals("-to")) 			lastsec = Integer.parseInt(args[++i]);
 			if (args[i].equals("-algo")) 		algorithm = args[++i];
 			if (args[i].equals("-ess")) 		ess = args[++i];
 			if (args[i].equals("-pred")) 		predicate = args[++i];
-			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
-			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
 			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
@@ -74,19 +63,15 @@ public class Main {
 	    // Print input parameters
 	    System.out.println(	"Event type: " + type +
 	    					"\nInput file: " + inputfile +
-	    					"\nReal time: " + realtime +
-	    					"\nStream from " + firstsec + " to " + lastsec +
 	    					"\nAlgorithm: " + algorithm +
 	    					"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
-	    					"\nWindow length: " + window_length + 
-							"\nWindow slide: " + window_slide +
-							"\nEvents per window: " + events_per_window +
+	    					"\nEvents per window: " + events_per_window +
 							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
 		AtomicInteger driverProgress = new AtomicInteger(-1);	
-		EventQueue eventqueue = new EventQueue(driverProgress);						
+		Stream stream = new Stream(driverProgress);						
 		CountDownLatch done = new CountDownLatch(1);
 		long startOfSimulation = System.currentTimeMillis();
 		AtomicInteger eventNumber = new AtomicInteger(0);
@@ -94,17 +79,16 @@ public class Main {
 		AtomicInteger total_memory = new AtomicInteger(0);
 		
 		/*** EXECUTORS ***/
-		//int window_number = (lastsec-firstsec)/window_slide + 1;
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 			
 		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (type, input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber, events_per_window);				
-				
-		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, algorithm,
-				ess, predicate, window_length, window_slide,   
-				executor, driverProgress, done, total_cpu, total_memory, output);		
+		EventDriver driver = new EventDriver (type, input, stream, startOfSimulation, driverProgress, eventNumber, events_per_window);				
+		
+		Query query = new Query(ess, predicate); 
+		Scheduler scheduler = new Scheduler (stream, algorithm, query,				   
+				executor, driverProgress, done, total_cpu, total_memory, output, eventNumber, events_per_window);		
 		
 		Thread prodThread = new Thread(driver);
 		prodThread.setPriority(10);

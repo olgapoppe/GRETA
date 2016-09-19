@@ -1,6 +1,8 @@
 package graph;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import event.*;
 import query.*;
 
@@ -29,10 +31,11 @@ public class Graph {
 		last_node = null;
 	}
 	
-	public Graph getCompleteGraph (ArrayList<Event> events, Query query) {		
+	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, int limit, Query query) {		
 		
 		int curr_sec = -1;				
-		for (Event event : events) {
+		Event event = events.poll();			
+		while (event != null && event.sec<=limit) {
 			
 			//System.out.println("--------------" + event.id);
 			
@@ -70,17 +73,18 @@ public class Graph {
 					for (NodesPerSecond nodes_per_second : all_nodes) {
 						nodes_per_second.marked = true;
 			}}}
+			event = events.poll();
 		}		
 		return this;
 	}	
 	
-	public Graph getCompressedGraph (ArrayList<Event> events, Query query) {		
+	public Graph getCompressedGraph (ConcurrentLinkedQueue<Event> events, int limit, Query query) {		
 		
 		if (query.event_selection_strategy.equals("any")) {
 		
 			int curr_sec = -1;
-			
-			for (Event event : events) {
+			Event event = events.poll();			
+			while (event != null && event.sec<=limit) {
 					
 				// Update the current second and intermediate counts
 				int event_count;
@@ -91,7 +95,8 @@ public class Graph {
 					count_for_current_second = 0;
 				} 
 				event_count = 1 + final_count;
-				count_for_current_second += event_count;
+				count_for_current_second += event_count;				
+				event = events.poll();
 				
 				//System.out.println(event.id + " with count " + event_count + " and final count " + final_count);				
 			}
@@ -100,7 +105,8 @@ public class Graph {
 		
 		} else {
 			
-			for (Event event : events) {
+			Event event = events.poll();			
+			while (event != null && event.sec<=limit) {
 				
 				// If the event can be inserted, update the final count and last node
 				Node new_node = new Node(event);
@@ -119,6 +125,7 @@ public class Graph {
 					if (query.event_selection_strategy.equals("cont")) 
 						last_node.marked = true;
 				}
+				event = events.poll();
 			}			
 		}
 		return this;

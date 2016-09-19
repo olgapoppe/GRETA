@@ -1,15 +1,16 @@
 package event;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EventQueue {
+public class Stream {
 	
-	public ConcurrentLinkedQueue<Event> contents;
+	public HashMap<String,ConcurrentLinkedQueue<Event>> substreams;
 	public AtomicInteger driverProgress;
 				
-	public EventQueue (AtomicInteger dp) {		
-		contents = new ConcurrentLinkedQueue<Event>();
+	public Stream (AtomicInteger dp) {		
+		substreams = new HashMap<String,ConcurrentLinkedQueue<Event>>();
 		driverProgress = dp;		
 	}
 	
@@ -19,6 +20,7 @@ public class EventQueue {
 	}
 
 	public synchronized boolean getDriverProgress (int sec) {	
+		//System.out.println("Scheduler is waiting for: " + sec);
 		try {			
 			while (driverProgress.get() < sec) {				
 				wait(); 						

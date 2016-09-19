@@ -3,6 +3,7 @@ package transaction;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,8 +16,8 @@ public class Sase extends Transaction {
 	
 	Query query;
 	
-	public Sase (Window w, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		super(w,o,tn,time,mem);
+	public Sase (Stream str, int l, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
+		super(str,l,o,tn,time,mem);
 		query = q;
 	}
 	
@@ -26,51 +27,43 @@ public class Sase extends Transaction {
 		computeResults();
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
-		total_cpu.set(total_cpu.get() + duration);
-		
-		System.out.println("Window " + window.id + " has " + count + " results.");		
-		//writeOutput2File();		
+		total_cpu.set(total_cpu.get() + duration);			
 		transaction_number.countDown();
 	}
 	
 	public void computeResults () {
 		
-		Set<String> substream_ids = window.substreams.keySet();
+		Set<String> substream_ids = stream.substreams.keySet();
 		
 		for (String substream_id : substream_ids) {					
 		 
-			ArrayList<Event> events = window.substreams.get(substream_id);
+			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			computeResults(events);
 		}
 	}
 	
-	public void computeResults (ArrayList<Event> events) {
+	public void computeResults (ConcurrentLinkedQueue<Event> events) {
 		
 		// Initiate data structures: stack, last events
 		Stack<Event> stack = new Stack<Event>();
 		ArrayList<Event> lastEvents = new ArrayList<Event>();
 		ArrayList<Event> newLastEvents = new ArrayList<Event>();
 		int curr_sec = -1;
-		int pointerCount = 0;
+		int pointerCount = 0;		
+		Event event = events.poll();
 		
-		for (Event event : events) {
+		while (event != null && event.sec<=limit) {
 			
-			boolean added = false;
-			
-			if (!event.pointers.containsKey(window.id)) {
-				ArrayList<Event> new_pointers = new ArrayList<Event>();
-				event.pointers.put(window.id, new_pointers);
-			}
-			ArrayList<Event> pointers = event.pointers.get(window.id);
-									
+			boolean added = false;		
+				
 			// Store pointers to its predecessors
 			if (event.sec == curr_sec) {
 				for (Event last : lastEvents) {
 					
-					if (pointers == null) System.out.println("Pointers null");
+					if (event.pointers == null) System.out.println("Pointers null");
 					
-					if (!pointers.contains(last)) {
-						pointers.add(last);
+					if (!event.pointers.contains(last)) {
+						event.pointers.add(last);
 						pointerCount++;
 				}}
 				if (query.event_selection_strategy.equals("any")) {
@@ -82,8 +75,8 @@ public class Sase extends Transaction {
 				lastEvents.clear();
 				lastEvents.addAll(newLastEvents);
 				for (Event last : lastEvents) {
-					if (!pointers.contains(last) && !last.marked) {
-						pointers.add(last);
+					if (!event.pointers.contains(last) && !last.marked) {
+						event.pointers.add(last);
 						pointerCount++;
 				}}
 				newLastEvents.clear();
@@ -99,7 +92,7 @@ public class Sase extends Transaction {
 					for (Event e : stack) 
 						e.marked = true;						
 			}
-			//System.out.println(window.id + " " + event.toStringWithPointers(window.id));
+			event = events.poll();
 		}		
 		// For each new last event, traverse the pointers to extract trends
 		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();
@@ -125,8 +118,7 @@ public class Sase extends Transaction {
 	    without_duplicates = getIncompleteTrends(input,without_duplicates);
 	    	    	
 	    /*** Traverse the following nodes. ***/
-		ArrayList<Event> pointers = event.pointers.get(window.id);	       
-		for(Event previous : pointers) {        		
+		for(Event previous : event.pointers) {        		
 			//System.out.println("following of " + node.event.id + " is " + following.event.id);
 	       	traversePointers(previous,current_trend,without_duplicates);        		
 	    }        	
@@ -176,7 +168,7 @@ public class Sase extends Transaction {
 			for (int i = 0; i < limit; i++) {
 				
 				if (query.event_selection_strategy.equals("any") || 
-					first_event.pointers.get(window.id).contains(rest.get(i).events.get(0))) { 
+					first_event.pointers.contains(rest.get(i).events.get(0))) { 
 					// first_event has a pointer to the fist event of the rest 
 				
 					ArrayList<Event> events = new ArrayList<Event>();
