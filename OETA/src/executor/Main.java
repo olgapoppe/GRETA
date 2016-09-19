@@ -51,6 +51,7 @@ public class Main {
 		String predicate = "none";		
 		int window_length = 0;
 		int window_slide = 0;
+		int events_per_window = Integer.MAX_VALUE;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -65,7 +66,7 @@ public class Main {
 			if (args[i].equals("-pred")) 		predicate = args[++i];
 			if (args[i].equals("-wl")) 			window_length = Integer.parseInt(args[++i]);
 			if (args[i].equals("-ws")) 			window_slide = Integer.parseInt(args[++i]);
-			
+			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
 	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
@@ -79,7 +80,8 @@ public class Main {
 	    					"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
 	    					"\nWindow length: " + window_length + 
-							"\nWindow slide: " + window_slide +							
+							"\nWindow slide: " + window_slide +
+							"\nEvents per window: " + events_per_window +
 							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
@@ -92,13 +94,13 @@ public class Main {
 		AtomicInteger total_memory = new AtomicInteger(0);
 		
 		/*** EXECUTORS ***/
-		int window_number = (lastsec-firstsec)/window_slide + 1;
+		//int window_number = (lastsec-firstsec)/window_slide + 1;
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 			
 		/*** Create and start the event driver and the scheduler threads.
 		 *   Driver reads from the file and writes into the event queue.
 		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (type, input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber);				
+		EventDriver driver = new EventDriver (type, input, realtime, lastsec, eventqueue, startOfSimulation, driverProgress, eventNumber, events_per_window);				
 				
 		Scheduler scheduler = new Scheduler (eventqueue, firstsec, lastsec, algorithm,
 				ess, predicate, window_length, window_slide,   
@@ -117,13 +119,10 @@ public class Main {
 		executor.shutdown();	
 		output.file.close();
 		
-		System.out.println(//"Event number: " + eventNumber.get() +
-				"\nAvg CPU: " + total_cpu.get()/window_number +
-				//"\nThroughput: " + eventNumber.get()/processingTime.get() +
-				"\nAvg MEM: " + total_memory.get()/window_number + "\n");
-				//"\nExecutor is done." +
-				//"\nMain is done.");
-			
+		System.out.println(
+				"\nAvg CPU: " + total_cpu.get() +
+				"\nAvg MEM: " + total_memory.get() + "\n");
+				
 		} catch (InterruptedException e) { e.printStackTrace(); }
 		  catch (IOException e1) { e1.printStackTrace(); }
 	}	

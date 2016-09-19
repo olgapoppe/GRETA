@@ -16,8 +16,9 @@ public class EventDriver implements Runnable {
 	long startOfSimulation;
 	AtomicInteger drProgress;
 	AtomicInteger eventNumber;
+	int events_per_window;
 		
-	public EventDriver (String ty, String f, boolean rt, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN) {
+	public EventDriver (String ty, String f, boolean rt, int last, EventQueue eq, long start, AtomicInteger dp, AtomicInteger eN, int epw) {
 		
 		type = ty;
 		filename = f;
@@ -27,6 +28,7 @@ public class EventDriver implements Runnable {
 		startOfSimulation = start;
 		drProgress = dp;
 		eventNumber = eN;
+		events_per_window = epw;
 	}
 
 	/** 
@@ -45,7 +47,7 @@ public class EventDriver implements Runnable {
 	 		Event event = Event.parse(line,type);
 	 		// Current Second
 	 		int curr_sec = -1;		
-			// First batch			
+	 		// First batch			
 			Random random = new Random();
 			int min = 6;
 			int max = 14;			
@@ -58,7 +60,7 @@ public class EventDriver implements Runnable {
  			/*** Put events within the current batch into the event queue ***/		
 	 		while (true) { 
 	 		
-	 			while (event != null && event.sec <= batch.end) {	 			
+	 			while (event != null && event.sec <= batch.end && eventNumber.get()<=events_per_window) {	 			
 	 				
 	 				/*** Put the event into the event queue and increment the counter ***/						
 	 				if (event.isRelevant()) {
@@ -89,7 +91,7 @@ public class EventDriver implements Runnable {
 	 			eventqueue.setDriverProgress(batch.end);					
 	 			curr_sec = batch.end;
 	 				 			
-				if (batch.end < lastsec) { 			
+				if (batch.end < lastsec && eventNumber.get()<=events_per_window) { 			
  				
 					/*** Sleep if now is smaller than batch_limit ms ***/
 					system_time = System.currentTimeMillis() - startOfSimulation;

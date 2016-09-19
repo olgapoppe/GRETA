@@ -90,7 +90,7 @@ public class StockEvent extends Event {
 	}
 	
 	public boolean isRelevant() {
-		return sector > 0;
+		return true;
 	}
 	
 	public boolean up(Event next) {
