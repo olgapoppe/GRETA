@@ -7,17 +7,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.*;
-import iogenerator.*;
 import query.Query;
 
 public class Sase extends Transaction {
 	
 	Query query;
 	
-	public Sase (Stream str, int l, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		super(str,l,o,tn,time,mem);
+	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+		super(str,d,time,mem);
 		query = q;
 	}
 	
@@ -28,7 +26,7 @@ public class Sase extends Transaction {
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);			
-		transaction_number.countDown();
+		done.countDown();
 	}
 	
 	public void computeResults () {
@@ -40,6 +38,7 @@ public class Sase extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			computeResults(events);
 		}
+		System.out.println("Count: " + count);
 	}
 	
 	public void computeResults (ConcurrentLinkedQueue<Event> events) {
@@ -50,10 +49,11 @@ public class Sase extends Transaction {
 		ArrayList<Event> newLastEvents = new ArrayList<Event>();
 		int curr_sec = -1;
 		int pointerCount = 0;		
-		Event event = events.poll();
+		Event event = events.peek();
 		
-		while (event != null && event.sec<=limit) {
+		while (event != null) {
 			
+			event = events.poll();
 			boolean added = false;		
 				
 			// Store pointers to its predecessors
@@ -92,7 +92,7 @@ public class Sase extends Transaction {
 					for (Event e : stack) 
 						e.marked = true;						
 			}
-			event = events.poll();
+			event = events.peek();
 		}		
 		// For each new last event, traverse the pointers to extract trends
 		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();

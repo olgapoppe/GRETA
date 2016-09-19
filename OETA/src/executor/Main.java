@@ -1,10 +1,14 @@
 package executor;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import iogenerator.*;
 import query.Query;
 import event.*;
-import scheduler.*;
+import transaction.*;
  
 public class Main {
 	
@@ -58,11 +62,10 @@ public class Main {
 			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
 		}
 	    String input = path + inputfile;
-	    OutputFileGenerator output = new OutputFileGenerator(path+outputfile); 
-	   	    
+	    	   	    
 	    // Print input parameters
 	    System.out.println(	"Event type: " + type +
-	    					"\nInput file: " + inputfile +
+	    					"\nInput file: " + input +
 	    					"\nAlgorithm: " + algorithm +
 	    					"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
@@ -70,44 +73,40 @@ public class Main {
 							"\n----------------------------------");
 
 		/*** SHARED DATA STRUCTURES ***/		
-		AtomicInteger driverProgress = new AtomicInteger(-1);	
-		Stream stream = new Stream(driverProgress);						
-		CountDownLatch done = new CountDownLatch(1);
+	    CountDownLatch done = new CountDownLatch(1);
 		long startOfSimulation = System.currentTimeMillis();
-		AtomicInteger eventNumber = new AtomicInteger(0);
 		AtomicLong total_cpu = new AtomicLong(0);	
 		AtomicInteger total_memory = new AtomicInteger(0);
 		
+		/*** STREAM PARTITIONING ***/
+		StreamPartitioner sp = new StreamPartitioner(type, input, events_per_window);
+		Stream stream = sp.partition();
+		
 		/*** EXECUTORS ***/
+		Query query = new Query (ess,predicate);
 		ExecutorService executor = Executors.newFixedThreadPool(3);
-			
-		/*** Create and start the event driver and the scheduler threads.
-		 *   Driver reads from the file and writes into the event queue.
-		 *   Scheduler reads from the event queue and submits event batches to the executor. ***/
-		EventDriver driver = new EventDriver (type, input, stream, startOfSimulation, driverProgress, eventNumber, events_per_window);				
-		
-		Query query = new Query(ess, predicate); 
-		Scheduler scheduler = new Scheduler (stream, algorithm, query,				   
-				executor, driverProgress, done, total_cpu, total_memory, output, eventNumber, events_per_window);		
-		
-		Thread prodThread = new Thread(driver);
-		prodThread.setPriority(10);
-		prodThread.start();
-		
-		Thread consThread = new Thread(scheduler);
-		consThread.setPriority(10);
-		consThread.start();		
+		Transaction transaction;
+		if (algorithm.equals("eta")) {
+			transaction = new ETA(stream,query,done,total_cpu,total_memory);
+		} else {
+		if (algorithm.equals("aseq")) {
+			transaction = new Aseq(stream,done,total_cpu,total_memory);
+		} else {
+		if (algorithm.equals("sase")) {
+			transaction = new Sase(stream,query,done,total_cpu,total_memory);
+		} else {
+			transaction = new Echo(stream,done,total_cpu,total_memory);
+		}}}
+		executor.execute(transaction);
 				
 		/*** Wait till all input events are processed and terminate the executor ***/
 		done.await();		
 		executor.shutdown();	
-		output.file.close();
 		
 		System.out.println(
 				"\nAvg CPU: " + total_cpu.get() +
 				"\nAvg MEM: " + total_memory.get() + "\n");
 				
 		} catch (InterruptedException e) { e.printStackTrace(); }
-		  catch (IOException e1) { e1.printStackTrace(); }
-	}	
+	}		
 }

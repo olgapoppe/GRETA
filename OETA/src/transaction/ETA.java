@@ -1,7 +1,5 @@
 package transaction;
 
-import iogenerator.OutputFileGenerator;
-
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,8 +14,8 @@ public class ETA extends Transaction {
 	
 	Query query;
 	
-	public ETA (Stream str, int l, Query q, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		super(str,l,o,tn,time,mem);
+	public ETA (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+		super(str,d,time,mem);
 		query = q;
 	}
 	
@@ -29,7 +27,7 @@ public class ETA extends Transaction {
 		long duration = end - start;
 		
 		total_cpu.set(total_cpu.get() + duration);				
-		transaction_number.countDown();
+		done.countDown();
 	}
 
 	public void computeResults () {
@@ -40,8 +38,8 @@ public class ETA extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			Graph graph = new Graph();
 			graph = (query.compressible()) ? 
-					graph.getCompressedGraph(events, limit, query) : 
-					graph.getCompleteGraph(events, limit, query);
+					graph.getCompressedGraph(events, query) : 
+					graph.getCompleteGraph(events, query);
 			count += graph.final_count;
 			total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);
 		}

@@ -1,7 +1,5 @@
 package transaction;
 
-import iogenerator.OutputFileGenerator;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -9,13 +7,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import event.*;
 
 public class Aseq extends Transaction {
 	
-	public Aseq (Stream str,int l,OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		super(str,l,o,tn,time,mem);
+	public Aseq (Stream str, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+		super(str,d,time,mem);
 	}
 	
 	public void run () {
@@ -25,7 +22,7 @@ public class Aseq extends Transaction {
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);			
-		transaction_number.countDown();
+		done.countDown();
 	}
 	
 	public void computeResults () {
@@ -48,9 +45,11 @@ public class Aseq extends Transaction {
 		int curr_length = 0;
 		int count_per_substream = 0;
 		
-		Event event = events.poll();
+		Event event = events.peek();
 		
-		while (event != null && event.sec<=limit) {
+		while (event != null) {
+			
+			event = events.poll();
 			
 			// Update current second, current length, and prefix counters
 			if (curr_sec < event.sec) {
@@ -74,7 +73,7 @@ public class Aseq extends Transaction {
 				count_per_substream += new_count_for_length;
 				//System.out.println("Event " + event.id + " length: " + length + " counts: " + count_of_new_matches + " " + count_of_old_matches );	
 			}
-			event = events.poll();
+			event = events.peek();
 		}
 		count += count_per_substream;
 		total_mem.set(total_mem.get() + prefix_counters_in_previous_second.size() + prefix_counters_in_current_second.size());	

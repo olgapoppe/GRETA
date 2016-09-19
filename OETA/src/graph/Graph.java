@@ -31,12 +31,13 @@ public class Graph {
 		last_node = null;
 	}
 	
-	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, int limit, Query query) {		
+	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
 		int curr_sec = -1;				
-		Event event = events.poll();			
-		while (event != null && event.sec<=limit) {
+		Event event = events.peek();			
+		while (event != null) {
 			
+			event = events.poll();
 			//System.out.println("--------------" + event.id);
 			
 			// Update the current second and all_nodes
@@ -73,19 +74,20 @@ public class Graph {
 					for (NodesPerSecond nodes_per_second : all_nodes) {
 						nodes_per_second.marked = true;
 			}}}
-			event = events.poll();
+			event = events.peek();
 		}		
 		return this;
 	}	
 	
-	public Graph getCompressedGraph (ConcurrentLinkedQueue<Event> events, int limit, Query query) {		
+	public Graph getCompressedGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
 		if (query.event_selection_strategy.equals("any")) {
 		
 			int curr_sec = -1;
-			Event event = events.poll();			
-			while (event != null && event.sec<=limit) {
+			Event event = events.peek();			
+			while (event != null) {
 					
+				event = events.poll();
 				// Update the current second and intermediate counts
 				int event_count;
 						
@@ -96,7 +98,7 @@ public class Graph {
 				} 
 				event_count = 1 + final_count;
 				count_for_current_second += event_count;				
-				event = events.poll();
+				event = events.peek();
 				
 				//System.out.println(event.id + " with count " + event_count + " and final count " + final_count);				
 			}
@@ -105,9 +107,10 @@ public class Graph {
 		
 		} else {
 			
-			Event event = events.poll();			
-			while (event != null && event.sec<=limit) {
+			Event event = events.peek();			
+			while (event != null) {
 				
+				event = events.poll();
 				// If the event can be inserted, update the final count and last node
 				Node new_node = new Node(event);
 				
@@ -125,7 +128,7 @@ public class Graph {
 					if (query.event_selection_strategy.equals("cont")) 
 						last_node.marked = true;
 				}
-				event = events.poll();
+				event = events.peek();
 			}			
 		}
 		return this;

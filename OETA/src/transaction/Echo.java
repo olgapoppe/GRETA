@@ -11,8 +11,8 @@ import iogenerator.*;
 
 public class Echo extends Transaction {
 	
-	public Echo (Stream str, int l, OutputFileGenerator o, CountDownLatch tn, AtomicLong time, AtomicInteger mem) {		
-		super(str,l,o,tn,time,mem);
+	public Echo (Stream str, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+		super(str,d,time,mem);
 	}
 	
 	public void run() {
@@ -22,7 +22,7 @@ public class Echo extends Transaction {
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
 		total_cpu.set(total_cpu.get() + duration);
-		transaction_number.countDown();
+		done.countDown();
 	}
 	
 	/*** Print all events in each sub-stream ***/
@@ -32,11 +32,12 @@ public class Echo extends Transaction {
 		for (String substream_id : substream_ids) {					
 		 
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
-			Event event = events.poll();
+			Event event = events.peek();
 			
-			while (event != null && event.sec<=limit) {
-				System.out.println("Executor: " + event.toString());
+			while (event != null) {
 				event = events.poll();
+				System.out.println("Executor: " + event.toString());
+				event = events.peek();
 			}
 		}		
 	}
