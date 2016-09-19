@@ -1,6 +1,5 @@
 package transaction;
 
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;

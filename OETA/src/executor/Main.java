@@ -1,20 +1,14 @@
 package executor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import iogenerator.*;
 import query.Query;
 import event.*;
 import transaction.*;
@@ -43,10 +37,8 @@ public class Main {
 	    String type = "stock";
 	    String path = "OETA/src/iofiles/";
 		String inputfile = "stream.txt";
-		String outputfile = "sequences.txt";		
 		
 		String algorithm = "echo";
-		
 		String ess = "any";
 		String predicate = "none";		
 		int events_per_window = Integer.MAX_VALUE;
@@ -74,7 +66,6 @@ public class Main {
 
 		/*** SHARED DATA STRUCTURES ***/		
 	    CountDownLatch done = new CountDownLatch(1);
-		long startOfSimulation = System.currentTimeMillis();
 		AtomicLong total_cpu = new AtomicLong(0);	
 		AtomicInteger total_memory = new AtomicInteger(0);
 		
