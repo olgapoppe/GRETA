@@ -30,7 +30,7 @@ public class EventSequence {
 			EventSequence seq = (EventSequence) o;
 			if (events.size() != seq.events.size()) return false;
 			for (int i=0; i<events.size(); i++) {
-				if (events.get(i).id != seq.events.get(i).id) return false;
+				if (!events.get(i).equals(seq.events.get(i))) return false;
 			}
 			return true;
 		} else {
