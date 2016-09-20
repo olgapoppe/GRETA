@@ -18,9 +18,9 @@ public class Main {
 	/**
 	 * Create and call the chain: Input file -> Driver -> Scheduler -> Executor -> Output files 
 	 * -type stock -path src/iofiles/ -file stream.txt -ess next -pred none -epw 15 -algo eta
-	 * -type cluster -path ../../../Dropbox/DataSets/Cluster/ -file cluster.txt -ess next -pred none -epw 3000 -algo aseq
-	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -ess any -pred none -epw 3500 -algo sase
-	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/ -file input7cleaned.dat -ess any -pred none -epw 3500 -algo sase
+	 * -type cluster -path ../../../Dropbox/DataSets/Cluster/ -file cluster.txt -ess any -pred none -epw 443947 -algo eta
+	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -ess any -pred none -epw 3520 -algo eta
+	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/last_10_min/ -file 0;2.dat -ess any -pred none -epw 492654 -algo eta
 	 */
 	public static void main (String[] args) { 
 		
