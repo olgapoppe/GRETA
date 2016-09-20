@@ -310,7 +310,7 @@ public class InputFileGenerator {
 			input = new Scanner(input_file); 
 			
 			String eventString = input.nextLine();
-			StockEvent event = StockEvent.parse3(eventString);			
+			StockEvent event = StockEvent.parse(eventString);			
 			int id = 1;
 				
 			while (event != null) {
@@ -331,7 +331,7 @@ public class InputFileGenerator {
 				// Reset event
 				if (input.hasNextLine()) {
 					eventString = input.nextLine();
-					event = StockEvent.parse3(eventString);
+					event = StockEvent.parse(eventString);
 				} else {
 					event = null;
 				}			

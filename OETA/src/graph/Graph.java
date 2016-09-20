@@ -121,7 +121,7 @@ public class Graph {
 					final_count += new_node.count;
 					last_node = new_node;
 					
-					System.out.println(event.id + " with count " + new_node.count + " and final count " + final_count);		
+					//System.out.println(event.id + " with count " + new_node.count + " and final count " + final_count);		
 					
 				} else {
 					// If the event cannot be inserted and the event selection strategy is contiguous, delete the last node

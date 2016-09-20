@@ -23,8 +23,7 @@ public class ETA extends Transaction {
 		long start =  System.currentTimeMillis();
 		computeResults();
 		long end =  System.currentTimeMillis();
-		long duration = end - start;
-		
+		long duration = end - start;		
 		total_cpu.set(total_cpu.get() + duration);				
 		done.countDown();
 	}

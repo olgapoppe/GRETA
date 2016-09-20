@@ -1,7 +1,7 @@
 package executor;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+//import java.nio.file.Path;
+//import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -17,7 +17,10 @@ public class Main {
 	
 	/**
 	 * Create and call the chain: Input file -> Driver -> Scheduler -> Executor -> Output files 
-	 * @param args: 
+	 * -type stock -path src/iofiles/ -file stream.txt -ess next -pred none -epw 15 -algo eta
+	 * -type cluster -path ../../../Dropbox/DataSets/Cluster/ -file cluster.txt -ess next -pred none -epw 3000 -algo aseq
+	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -ess any -pred none -epw 3500 -algo sase
+	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/ -file input7cleaned.dat -ess any -pred none -epw 3500 -algo sase
 	 */
 	public static void main (String[] args) { 
 		
@@ -28,9 +31,9 @@ public class Main {
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
 	    System.out.println("----------------------------------\nCurrent Date: " + ft.format(dNow));
 	    
-	    Path currentRelativePath = Paths.get("");
+	    /*Path currentRelativePath = Paths.get("");
 	    String s = currentRelativePath.toAbsolutePath().toString();
-	    System.out.println("Current relative path is: " + s);
+	    System.out.println("Current relative path is: " + s);*/
 	    
 	    /*** Input and output ***/
 	    // Set default values
@@ -52,17 +55,23 @@ public class Main {
 			if (args[i].equals("-ess")) 		ess = args[++i];
 			if (args[i].equals("-pred")) 		predicate = args[++i];
 			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
-		}
-	    String input = path + inputfile;
+		}	    
+	    
+	    // Make sure the input parameters are correct
+	    if (algorithm.equals("aseq") && (!ess.equals("any") || !predicate.equals("none"))) {
+	    	System.err.println("ASEQ works under skip-till-any-match without predicates on adjacent events");
+	    	return;
+	    }
 	    	   	    
 	    // Print input parameters
+	    String input = path + inputfile;
 	    System.out.println(	"Event type: " + type +
 	    					"\nInput file: " + input +
 	    					"\nAlgorithm: " + algorithm +
 	    					"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
 	    					"\nEvents per window: " + events_per_window +
-							"\n----------------------------------");
+							"\n----------------------------------");	    
 
 		/*** SHARED DATA STRUCTURES ***/		
 	    CountDownLatch done = new CountDownLatch(1);
@@ -92,11 +101,8 @@ public class Main {
 				
 		/*** Wait till all input events are processed and terminate the executor ***/
 		done.await();		
-		executor.shutdown();	
-		
-		System.out.println(
-				"\nAvg CPU: " + total_cpu.get() +
-				"\nAvg MEM: " + total_memory.get() + "\n");
+		executor.shutdown();			
+		System.out.println( "\nCPU: " + total_cpu.get() + "\nMEM: " + total_memory.get() + "\n");
 				
 		} catch (InterruptedException e) { e.printStackTrace(); }
 	}		

@@ -30,21 +30,6 @@ public class StockEvent extends Event {
 	
 	public static StockEvent parse (String line) {
 		
-		String[] values = line.split(",");
-		
-		int i = Integer.parseInt(values[0]);
-		int sec = Integer.parseInt(values[1]);
-        int s = Integer.parseInt(values[2]);
-        String c = values[3];          	
-        int p = Integer.parseInt(values[4]);
-    	    	    	
-    	StockEvent event = new StockEvent(i,sec,s,c,p);    	
-    	//System.out.println(event.toString());    	
-        return event;
-	}
-	
-	public static StockEvent parse3 (String line) {
-		
 		String[] values = line.split(", ");
 		
 		int i = Integer.parseInt(values[0]);

@@ -102,8 +102,7 @@ public class Sase extends Transaction {
 		
 		//System.out.println(without_duplicates);
 		count += without_duplicates.size();
-		total_mem.set(total_mem.get() + stack.size() + pointerCount + count);
-		//if (total_mem.get() < memory) total_mem.getAndAdd(memory);
+		total_mem.set(total_mem.get() + stack.size() + pointerCount + without_duplicates.size());
 	}
 	
 	// DFS in the stack
