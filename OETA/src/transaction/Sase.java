@@ -1,5 +1,6 @@
 package transaction;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
@@ -101,7 +102,7 @@ public class Sase extends Transaction {
 				traversePointers(lastEvent, new Stack<Event>(), without_duplicates);
 		
 		//System.out.println(without_duplicates);
-		count += without_duplicates.size();
+		count = count.add(new BigInteger(without_duplicates.size()+""));
 		total_mem.set(total_mem.get() + stack.size() + pointerCount + without_duplicates.size());
 	}
 	

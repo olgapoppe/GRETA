@@ -1,5 +1,6 @@
 package transaction;
 
+import java.math.BigInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,13 +12,13 @@ public abstract class Transaction implements Runnable {
 	public CountDownLatch done;	
 	AtomicLong total_cpu;
 	AtomicInteger total_mem;
-	public int count;
+	public BigInteger count;
 	
 	public Transaction (Stream str, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		stream = str;	 
 		done = d;
 		total_cpu = time;
 		total_mem = mem;
-		count = 0;
+		count = new BigInteger("0");
 	}
 }

@@ -1,5 +1,6 @@
 package transaction;
 
+import java.math.BigInteger;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -38,8 +39,10 @@ public class ETA extends Transaction {
 			graph = (query.compressible()) ? 
 					graph.getCompressedGraph(events, query) : 
 					graph.getCompleteGraph(events, query);
-			count += graph.final_count;
+			count = count.add(new BigInteger(graph.final_count+""));
 			total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);
+			
+			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 		}
 		System.out.println("Count: " + count);
 	}

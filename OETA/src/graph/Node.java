@@ -1,5 +1,6 @@
 package graph;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import event.*;
 
@@ -7,13 +8,13 @@ public class Node {
 	
 	public Event event;
 	public ArrayList<Node> previous;
-	public int count;
+	BigInteger count;
 	public boolean marked;
 			
 	public Node (Event e) {
 		event = e;
 		previous = new ArrayList<Node>();
-		count = 1;
+		count = new BigInteger("1");
 		marked = false;
 	}
 	

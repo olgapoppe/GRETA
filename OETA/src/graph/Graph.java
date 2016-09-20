@@ -1,5 +1,6 @@
 package graph;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -16,8 +17,8 @@ public class Graph {
 	public int edgeNumber;	
 	
 	// Counts
-	public int final_count;
-	public int count_for_current_second;
+	public BigInteger final_count;
+	public BigInteger count_for_current_second;
 	
 	// Last node
 	Node last_node;
@@ -26,8 +27,8 @@ public class Graph {
 		all_nodes = new ArrayList<NodesPerSecond>();
 		nodeNumber = 0;
 		edgeNumber = 0;		
-		final_count = 0;
-		count_for_current_second = 0;
+		final_count = new BigInteger("0");
+		count_for_current_second = new BigInteger("0");
 		last_node = null;
 	}
 	
@@ -61,12 +62,12 @@ public class Graph {
 						for (Node previous_node : nodes_per_second.nodes_per_second) {
 							if(query.compatible(previous_node,new_node)) {
 								new_node.previous.add(previous_node);
-								new_node.count += previous_node.count;							
+								new_node.count = new_node.count.add(previous_node.count);							
 								edgeNumber++;						
 				}}}}				
 					
 				// Update the final count
-				final_count += new_node.count;
+				final_count = final_count.add(new BigInteger(new_node.count+""));
 				//System.out.println(new_node.toString());
 			} else {
 				// Mark all previous events as incompatible with all future events under the contiguous strategy
@@ -88,22 +89,23 @@ public class Graph {
 			while (event != null) {
 					
 				event = events.poll();
+				
 				// Update the current second and intermediate counts
-				int event_count;
-						
 				if (curr_sec < event.sec) {
 					curr_sec = event.sec;
-					final_count += count_for_current_second;	
-					count_for_current_second = 0;
+					final_count = final_count.add(count_for_current_second);	
+					count_for_current_second = new BigInteger("0");
 				} 
-				event_count = 1 + final_count;
-				count_for_current_second += event_count;				
-				event = events.peek();
+				BigInteger event_count = new BigInteger("1").add(final_count);
+				count_for_current_second = count_for_current_second.add(event_count);				
+							
+				/*if (event != null && event.getSubstreamid().equals("10_7"))
+					System.out.println(event.sec + " : " + event.id + " with count " + event_count);*/	
 				
-				//System.out.println(event.id + " with count " + event_count + " and final count " + final_count);				
+				event = events.peek();
 			}
 			// Add the count for last second to the final count
-			final_count += count_for_current_second;
+			final_count = final_count.add(count_for_current_second);
 		
 		} else {
 			
@@ -117,8 +119,8 @@ public class Graph {
 				if (last_node == null || (last_node.event.sec < event.sec && query.compatible(last_node,new_node))) {
 					
 					if (last_node != null && !last_node.marked) 
-						new_node.count += last_node.count;
-					final_count += new_node.count;
+						new_node.count = new_node.count.add(last_node.count);
+					final_count = final_count.add(new_node.count);
 					last_node = new_node;
 					
 					//System.out.println(event.id + " with count " + new_node.count + " and final count " + final_count);		
