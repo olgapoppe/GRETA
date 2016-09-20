@@ -66,7 +66,7 @@ public class Main {
 	    // Print input parameters
 	    String input = path + inputfile;
 	    System.out.println(	"Event type: " + type +
-	    					"\nInput file: " + input +
+	    					//"\nInput file: " + input +
 	    					"\nAlgorithm: " + algorithm +
 	    					"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
@@ -84,7 +84,7 @@ public class Main {
 		
 		/*** EXECUTORS ***/
 		Query query = new Query (ess,predicate);
-		ExecutorService executor = Executors.newFixedThreadPool(3);
+		ExecutorService executor = Executors.newFixedThreadPool(10);
 		Transaction transaction;
 		if (algorithm.equals("eta")) {
 			transaction = new ETA(stream,query,done,total_cpu,total_memory);
