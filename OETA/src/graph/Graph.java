@@ -34,7 +34,7 @@ public class Graph {
 	
 	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
-		int curr_sec = -1;				
+		int curr_sec = -1;	
 		Event event = events.peek();			
 		while (event != null) {
 			
@@ -60,7 +60,18 @@ public class Graph {
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {
 						for (Node previous_node : nodes_per_second.nodes_per_second) {
-							if(query.compatible(previous_node,new_node)) {
+							
+							int allPredecessorNumber = nodeNumber - nodes_in_current_second.nodes_per_second.size();
+							int current_percentage = (new_node.previous.size()*100)/allPredecessorNumber;
+							
+							System.out.println(new_node.event.id + " : " + 
+							new_node.previous.size() + " vs " + 
+							allPredecessorNumber + " " +
+							current_percentage + " < " + 
+							query.predicate_on_adjacent_events + " added: " +
+							query.compatible(previous_node.event,new_node.event,current_percentage));
+							
+							if(query.compatible(previous_node.event,new_node.event,current_percentage)) {
 								new_node.previous.add(previous_node);
 								new_node.count = new_node.count.add(previous_node.count);							
 								edgeNumber++;						
@@ -116,7 +127,7 @@ public class Graph {
 				// If the event can be inserted, update the final count and last node
 				Node new_node = new Node(event);
 				
-				if (last_node == null || (last_node.event.sec < event.sec && query.compatible(last_node,new_node))) {
+				if (last_node == null || (last_node.event.sec < event.sec && query.compatible(last_node.event,new_node.event,0))) {
 					
 					if (last_node != null && !last_node.marked) 
 						new_node.count = new_node.count.add(last_node.count);
