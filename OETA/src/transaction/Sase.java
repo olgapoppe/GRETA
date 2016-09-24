@@ -2,6 +2,7 @@ package transaction;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -14,10 +15,12 @@ import query.Query;
 public class Sase extends Transaction {
 	
 	Query query;
+	HashMap<Integer,Integer> number_of_predecessors_per_second;
 	
 	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
+		number_of_predecessors_per_second = new HashMap<Integer,Integer>();
 	}
 	
 	public void run () {
@@ -52,6 +55,9 @@ public class Sase extends Transaction {
 		int pointerCount = 0;		
 		Event event = events.peek();
 		
+		int number_of_events_in_prev_sec = 0;
+		int number_of_events_in_curr_sec = 0;
+				
 		while (event != null) {
 			
 			event = events.poll();
@@ -70,8 +76,15 @@ public class Sase extends Transaction {
 				if (query.event_selection_strategy.equals("any")) {
 					newLastEvents.add(event);
 					added = true;
+					number_of_events_in_curr_sec++;
 				}
 			} else {
+				
+				number_of_predecessors_per_second.put(curr_sec,number_of_events_in_prev_sec);
+				//System.out.println(curr_sec + " " + number_of_events_in_prev_sec);
+				number_of_events_in_prev_sec += number_of_events_in_curr_sec;
+				number_of_events_in_curr_sec = 1;
+				
 				// Update last events and draw pointers from event to all last events
 				lastEvents.clear();
 				lastEvents.addAll(newLastEvents);
@@ -95,6 +108,9 @@ public class Sase extends Transaction {
 			}
 			event = events.peek();
 		}		
+		number_of_predecessors_per_second.put(curr_sec,number_of_events_in_prev_sec);
+		//System.out.println(curr_sec + " " + number_of_events_in_prev_sec);
+		
 		// For each new last event, traverse the pointers to extract trends
 		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();
 		for (Event lastEvent : newLastEvents) 
@@ -161,21 +177,37 @@ public class Sase extends Transaction {
 		} else {
 				
 			/*** Recursive case: Combine the first event with all combinations of other events ***/
-			Event first_event = elements.remove(0);  							
+			Event first_event = elements.remove(0);  
+			int allPredecessorNumber = number_of_predecessors_per_second.get(first_event.sec);
 			ArrayList<EventSequence> rest = getCombinations(elements,obligatory);
 			int limit = rest.size();
-						
+									
 			for (int i = 0; i < limit; i++) {
 				
-				if (query.event_selection_strategy.equals("any") || 
-					first_event.pointers.contains(rest.get(i).events.get(0))) { 
-					// first_event has a pointer to the fist event of the rest 
+				Event second_event = rest.get(i).events.get(0);				
+				int current_percentage = (allPredecessorNumber>0) ? (first_event.predecessors.size()*100)/allPredecessorNumber : 0;
 				
+				/*if (first_event.id == 9)
+				System.out.println(first_event.id + " and " + 
+				second_event.id + " : " +
+				first_event.predecessors.size() + " vs " + 
+				allPredecessorNumber + " " +
+				current_percentage + " < " + 
+				query.predicate_on_adjacent_events);*/
+				
+				if ( ( query.event_selection_strategy.equals("any") || first_event.pointers.contains(second_event) ) && 
+					 ( query.compatible(first_event,second_event,current_percentage) || first_event.predecessors.contains(second_event) ) ) { 
+								
 					ArrayList<Event> events = new ArrayList<Event>();
 					events.add(first_event);
 					events.addAll(rest.get(i).events);		
 					EventSequence seq = new EventSequence(events);
-					rest.add(seq);	
+					rest.add(seq);
+					//System.out.println("--------->" + seq);
+					if (query.compatible(first_event,second_event,current_percentage) && !first_event.predecessors.contains(second_event)) {
+						first_event.predecessors.add(second_event);
+						//System.out.println(second_event.id + " is predecessor of " + first_event.id);
+					}						
 				}
 			}
 			with_duplicates.addAll(rest);
