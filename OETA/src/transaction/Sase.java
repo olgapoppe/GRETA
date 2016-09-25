@@ -178,40 +178,24 @@ public class Sase extends Transaction {
 				
 			/*** Recursive case: Combine the first event with all combinations of other events ***/
 			Event first_event = elements.remove(0);  
-			int allPredecessorNumber = number_of_predecessors_per_second.get(first_event.sec);
 			ArrayList<EventSequence> rest = getCombinations(elements,obligatory);
-			int limit = rest.size();
+			// Adjust the limit to the number of compatible events
+			int required_percentage = query.getPercentage();
+			int limit = rest.size() * required_percentage/100;
 									
-			for (int i = 0; i < limit; i++) {
+			for (int i=0; i<limit; i++) {
 				
-				Event second_event = rest.get(i).events.get(0);				
-				int current_percentage = (allPredecessorNumber>0) ? (first_event.predecessors.size()*100)/allPredecessorNumber : 0;
-				
-				/*if (first_event.id == 9)
-				System.out.println(first_event.id + " and " + 
-				second_event.id + " : " +
-				first_event.predecessors.size() + " vs " + 
-				allPredecessorNumber + " " +
-				current_percentage + " < " + 
-				query.predicate_on_adjacent_events);*/
-				
-				boolean compatible = query.compatible(first_event,second_event,current_percentage);
+				Event second_event = rest.get(i).events.get(0);									
+				boolean compatible = query.compatible(first_event,second_event,0);
 				boolean contained_in_pointers = first_event.pointers.contains(second_event);
-				boolean contained_in_predecessors = first_event.predecessors.contains(second_event);
 				
-				if ( (query.event_selection_strategy.equals("any") || contained_in_pointers) && 
-					 (compatible || contained_in_predecessors) ) { 
+				if ( (query.event_selection_strategy.equals("any") || contained_in_pointers) && compatible) { 
 								
 					ArrayList<Event> events = new ArrayList<Event>();
 					events.add(first_event);
 					events.addAll(rest.get(i).events);		
 					EventSequence seq = new EventSequence(events);
-					rest.add(seq);
-					//System.out.println("--------->" + seq);
-					if (compatible && !contained_in_predecessors) {
-						first_event.predecessors.add(second_event);
-						//System.out.println(second_event.id + " is predecessor of " + first_event.id);
-					}						
+					rest.add(seq);								
 				}
 			}
 			with_duplicates.addAll(rest);

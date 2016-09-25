@@ -14,14 +14,22 @@ public class Query {
 		predicate_on_adjacent_events = pred;
 	}
 	
-	public boolean compatible (Event previous, Event following, int current_percentage) {
+	public int getPercentage() {
 		
+		int percentage = 100;
+	
 		if (predicate_on_adjacent_events.endsWith("%")) {
 			String str= predicate_on_adjacent_events.replaceAll("%", "");
-			int required_percentage = Integer.parseInt(str);
-			
-			//System.out.println(current_percentage + " < " + required_percentage);
-			
+			percentage = Integer.parseInt(str);
+		}
+		return percentage;
+	}
+	
+	public boolean compatible (Event previous, Event following, int current_percentage) {
+		
+		int required_percentage = getPercentage();
+		
+		if (required_percentage < 100) {
 			return current_percentage < required_percentage;
 		} else {		
 		if (predicate_on_adjacent_events.equals("up")) {
