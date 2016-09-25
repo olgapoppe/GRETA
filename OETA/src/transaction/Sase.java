@@ -15,12 +15,12 @@ import query.Query;
 public class Sase extends Transaction {
 	
 	Query query;
-	HashMap<Integer,Integer> number_of_predecessors_per_second;
+	HashMap<Integer,Integer> number_of_events_at_second;
 	
 	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
-		number_of_predecessors_per_second = new HashMap<Integer,Integer>();
+		number_of_events_at_second = new HashMap<Integer,Integer>();
 	}
 	
 	public void run () {
@@ -52,7 +52,8 @@ public class Sase extends Transaction {
 		ArrayList<Event> lastEvents = new ArrayList<Event>();
 		ArrayList<Event> newLastEvents = new ArrayList<Event>();
 		int curr_sec = -1;
-		int pointerCount = 0;		
+		int prev_sec = -1;
+		int pointerCount = 0;	
 		Event event = events.peek();
 		
 		int number_of_events_in_prev_sec = 0;
@@ -65,13 +66,14 @@ public class Sase extends Transaction {
 				
 			// Store pointers to its predecessors
 			if (event.sec == curr_sec) {
+						
 				for (Event last : lastEvents) {
 					
 					if (event.pointers == null) System.out.println("Pointers null");
 					
 					if (!event.pointers.contains(last)) {
 						event.pointers.add(last);
-						pointerCount++;
+						pointerCount++;						
 				}}
 				if (query.event_selection_strategy.equals("any")) {
 					newLastEvents.add(event);
@@ -80,14 +82,15 @@ public class Sase extends Transaction {
 				}
 			} else {
 				
-				number_of_predecessors_per_second.put(curr_sec,number_of_events_in_prev_sec);
-				//System.out.println(curr_sec + " " + number_of_events_in_prev_sec);
-				number_of_events_in_prev_sec += number_of_events_in_curr_sec;
+				int sum = number_of_events_in_prev_sec + number_of_events_in_curr_sec;
+				number_of_events_at_second.put(curr_sec,sum);
+				System.out.println(curr_sec + " " + sum);
+				number_of_events_in_prev_sec = sum;
 				number_of_events_in_curr_sec = 1;
 				
 				// Update last events and draw pointers from event to all last events
 				lastEvents.clear();
-				lastEvents.addAll(newLastEvents);
+				lastEvents.addAll(newLastEvents);				
 				for (Event last : lastEvents) {
 					if (!event.pointers.contains(last) && !last.marked) {
 						event.pointers.add(last);
@@ -96,6 +99,7 @@ public class Sase extends Transaction {
 				newLastEvents.clear();
 				newLastEvents.add(event);
 				added = true;
+				prev_sec = curr_sec;
 				curr_sec = event.sec;
 			}			
 			// Store the event in a stack or mark all events as incompatible with all future events
@@ -108,9 +112,6 @@ public class Sase extends Transaction {
 			}
 			event = events.peek();
 		}		
-		number_of_predecessors_per_second.put(curr_sec,number_of_events_in_prev_sec);
-		//System.out.println(curr_sec + " " + number_of_events_in_prev_sec);
-		
 		// For each new last event, traverse the pointers to extract trends
 		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();
 		for (Event lastEvent : newLastEvents) 
@@ -180,9 +181,8 @@ public class Sase extends Transaction {
 			Event first_event = elements.remove(0);  
 			ArrayList<EventSequence> rest = getCombinations(elements,obligatory);
 			// Adjust the limit to the number of compatible events
-			int required_percentage = query.getPercentage();
-			int limit = rest.size() * required_percentage/100;
-									
+			int limit = rest.size();
+			
 			for (int i=0; i<limit; i++) {
 				
 				Event second_event = rest.get(i).events.get(0);									
