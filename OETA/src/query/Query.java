@@ -25,12 +25,10 @@ public class Query {
 		return percentage;
 	}
 	
-	public boolean compatible (Event previous, Event following, int current_percentage) {
+	public boolean compatible (Event previous, Event following, int id_of_last_compatible_predecessor) {
 		
-		int required_percentage = getPercentage();
-		
-		if (required_percentage < 100) {
-			return current_percentage < required_percentage;
+		if (predicate_on_adjacent_events.endsWith("%")) {
+			return previous.id <= id_of_last_compatible_predecessor;
 		} else {		
 		if (predicate_on_adjacent_events.equals("up")) {
 			return previous.up(following);

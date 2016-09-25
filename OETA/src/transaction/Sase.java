@@ -82,10 +82,9 @@ public class Sase extends Transaction {
 				}
 			} else {
 				
-				int sum = number_of_events_in_prev_sec + number_of_events_in_curr_sec;
-				number_of_events_at_second.put(curr_sec,sum);
-				System.out.println(curr_sec + " " + sum);
-				number_of_events_in_prev_sec = sum;
+				number_of_events_at_second.put(curr_sec,number_of_events_in_prev_sec);
+				//System.out.println(curr_sec + " " + number_of_events_in_prev_sec);
+				number_of_events_in_prev_sec += number_of_events_in_curr_sec;
 				number_of_events_in_curr_sec = 1;
 				
 				// Update last events and draw pointers from event to all last events
@@ -111,7 +110,10 @@ public class Sase extends Transaction {
 						e.marked = true;						
 			}
 			event = events.peek();
-		}		
+		}	
+		number_of_events_at_second.put(curr_sec,number_of_events_in_prev_sec);
+		//System.out.println(curr_sec + " " + number_of_events_in_prev_sec);
+				
 		// For each new last event, traverse the pointers to extract trends
 		ArrayList<EventSequence> without_duplicates = new ArrayList<EventSequence>();
 		for (Event lastEvent : newLastEvents) 
@@ -178,21 +180,24 @@ public class Sase extends Transaction {
 		} else {
 				
 			/*** Recursive case: Combine the first event with all combinations of other events ***/
-			Event first_event = elements.remove(0);  
+			Event new_event = elements.remove(0);  
+			int id_of_last_predecessor = number_of_events_at_second.get(new_event.sec);
+			int id_of_last_compatible_predecessor = (id_of_last_predecessor * query.getPercentage())/100;
+			//System.out.println(new_event.id + " : " + id_of_last_predecessor + ", " + id_of_last_compatible_predecessor);
+			
 			ArrayList<EventSequence> rest = getCombinations(elements,obligatory);
-			// Adjust the limit to the number of compatible events
 			int limit = rest.size();
 			
-			for (int i=0; i<limit; i++) {
+			for (int i=0; i<limit; i++) {			
 				
-				Event second_event = rest.get(i).events.get(0);									
-				boolean compatible = query.compatible(first_event,second_event,0);
-				boolean contained_in_pointers = first_event.pointers.contains(second_event);
-				
-				if ( (query.event_selection_strategy.equals("any") || contained_in_pointers) && compatible) { 
+				Event prev_event = rest.get(i).events.get(0);					
+				boolean contained_in_pointers = new_event.pointers.contains(prev_event);
+				boolean compatible = query.compatible(prev_event,new_event,id_of_last_compatible_predecessor);
+								
+				if ((query.event_selection_strategy.equals("any") || contained_in_pointers) && compatible) { 
 								
 					ArrayList<Event> events = new ArrayList<Event>();
-					events.add(first_event);
+					events.add(new_event);
 					events.addAll(rest.get(i).events);		
 					EventSequence seq = new EventSequence(events);
 					rest.add(seq);								
