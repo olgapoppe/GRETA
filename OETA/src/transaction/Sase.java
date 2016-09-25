@@ -195,8 +195,12 @@ public class Sase extends Transaction {
 				current_percentage + " < " + 
 				query.predicate_on_adjacent_events);*/
 				
-				if ( ( query.event_selection_strategy.equals("any") || first_event.pointers.contains(second_event) ) && 
-					 ( query.compatible(first_event,second_event,current_percentage) || first_event.predecessors.contains(second_event) ) ) { 
+				boolean compatible = query.compatible(first_event,second_event,current_percentage);
+				boolean contained_in_pointers = first_event.pointers.contains(second_event);
+				boolean contained_in_predecessors = first_event.predecessors.contains(second_event);
+				
+				if ( (query.event_selection_strategy.equals("any") || contained_in_pointers) && 
+					 (compatible || contained_in_predecessors) ) { 
 								
 					ArrayList<Event> events = new ArrayList<Event>();
 					events.add(first_event);
@@ -204,7 +208,7 @@ public class Sase extends Transaction {
 					EventSequence seq = new EventSequence(events);
 					rest.add(seq);
 					//System.out.println("--------->" + seq);
-					if (query.compatible(first_event,second_event,current_percentage) && !first_event.predecessors.contains(second_event)) {
+					if (compatible && !contained_in_predecessors) {
 						first_event.predecessors.add(second_event);
 						//System.out.println(second_event.id + " is predecessor of " + first_event.id);
 					}						
