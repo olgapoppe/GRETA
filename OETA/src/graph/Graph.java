@@ -66,9 +66,9 @@ public class Graph {
 														
 							if(query.compatible(previous_node.event,new_node.event,id_of_last_compatible_predecessor)) {
 								new_node.previous.add(previous_node);
-								//System.out.println(previous_node.event.id + " is predecessor of " + new_node.event.id);
 								new_node.count = new_node.count.add(previous_node.count);							
-								edgeNumber++;						
+								edgeNumber++;
+								//System.out.println(previous_node.event.id + " is predecessor of " + new_node.event.id);
 				}}}}				
 					
 				// Update the final count

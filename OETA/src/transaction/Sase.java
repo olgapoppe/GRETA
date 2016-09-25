@@ -73,7 +73,7 @@ public class Sase extends Transaction {
 					
 					if (!event.pointers.contains(last)) {
 						event.pointers.add(last);
-						pointerCount++;						
+						pointerCount++;		
 				}}
 				if (query.event_selection_strategy.equals("any")) {
 					newLastEvents.add(event);
@@ -200,7 +200,8 @@ public class Sase extends Transaction {
 					events.add(new_event);
 					events.addAll(rest.get(i).events);		
 					EventSequence seq = new EventSequence(events);
-					rest.add(seq);								
+					rest.add(seq);
+					//System.out.println(prev_event.id + " is predecessor of " + new_event.id);
 				}
 			}
 			with_duplicates.addAll(rest);
