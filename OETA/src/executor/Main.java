@@ -17,7 +17,7 @@ public class Main {
 	
 	/**
 	 * Create and call the chain: Input file -> Driver -> Scheduler -> Executor -> Output files 
-	 * -type stock -path src/iofiles/ -file stream.txt -ess next -pred none -epw 15 -algo eta
+	 * -type stock -path src/iofiles/ -file stream.txt -ess any -pred none -epw 15 -algo eta
 	 * -type cluster -path ../../../Dropbox/DataSets/Cluster/ -file cluster.txt -ess any -pred none -epw 443947 -algo eta
 	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -ess any -pred none -epw 3520 -algo eta
 	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/last_10_min/ -file 0;2.dat -ess any -pred none -epw 492654 -algo eta
