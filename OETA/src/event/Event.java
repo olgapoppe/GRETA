@@ -9,6 +9,7 @@ public abstract class Event {
 	public ArrayList<Event> pointers;
 	public boolean flagged;
 	public boolean marked;
+	public int actual_count;
 			
 	public Event (int i, int s) {
 		id = i;		
@@ -16,6 +17,7 @@ public abstract class Event {
 		pointers = new ArrayList<Event>();
 		flagged = false;
 		marked = false;
+		actual_count = 0;
 	}
 	
 	public int getStart() {
