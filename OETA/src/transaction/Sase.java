@@ -190,7 +190,9 @@ public class Sase extends Transaction {
 			
 			for (int i=0; i<limit; i++) {			
 				
-				Event prev_event = rest.get(i).events.get(0);					
+				Event prev_event = rest.get(i).events.get(0);	
+				if (prev_event.id > id_of_last_compatible_predecessor) break;
+				
 				boolean contained_in_pointers = new_event.pointers.contains(prev_event);
 				boolean compatible = query.compatible(prev_event,new_event,id_of_last_compatible_predecessor);
 								
@@ -202,7 +204,7 @@ public class Sase extends Transaction {
 					EventSequence seq = new EventSequence(events);
 					rest.add(seq);
 					//System.out.println(prev_event.id + " is predecessor of " + new_event.id);
-				}
+				}				
 			}
 			with_duplicates.addAll(rest);
 		}		
