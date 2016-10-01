@@ -40,7 +40,7 @@ public class Graph {
 			
 			event = events.poll();
 			//System.out.println("--------------" + event.id);
-			
+									
 			// Update the current second and all_nodes
 			if (curr_sec < event.sec) {
 				curr_sec = event.sec;
@@ -51,34 +51,35 @@ public class Graph {
 			// Create and store a new node
 			Node new_node = new Node(event);
 			NodesPerSecond nodes_in_current_second = all_nodes.get(all_nodes.size()-1);
+						
+			ArrayList<Node> previous_nodes = new ArrayList<Node>();
+			boolean marked = false;
+			int count = 0;
+			if (all_nodes.size()-2 >= 0) {
+				NodesPerSecond nodes_in_previous_second = all_nodes.get(all_nodes.size()-2);
+				marked = nodes_in_previous_second.marked;
+				previous_nodes = nodes_in_previous_second.nodes_per_second;
+				count = previous_nodes.size();
+			}
+			int required_count = (count * query.getPercentage())/100;
+			//System.out.println(event.toString() + " -> " + count);
 			
 			if (query.event_selection_strategy.equals("any") || nodes_in_current_second.nodes_per_second.isEmpty()) {
 				nodes_in_current_second.nodes_per_second.add(new_node);		
-				nodeNumber++;
-				boolean done = false;
+				nodeNumber++;			
 						
 				// Connect this event to all previous compatible events and compute the count of this node
-				for (NodesPerSecond nodes_per_second : all_nodes) {
-					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked && !done) {
-						for (Node previous_node : nodes_per_second.nodes_per_second) {
-							
-							int id_of_last_predecessor = nodeNumber - nodes_in_current_second.nodes_per_second.size();
-							int id_of_last_compatible_predecessor = (id_of_last_predecessor * query.getPercentage())/100;
-														
-							if(query.compatible(previous_node.event,new_node.event,id_of_last_compatible_predecessor)) {
+				//for (NodesPerSecond nodes_per_second : all_nodes) {
+					//if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {
+					if (!marked) {
+						for (Node previous_node : previous_nodes) {																				
+							if (event.actual_count<required_count) {
 								new_node.previous.add(previous_node);
 								new_node.count = new_node.count.add(previous_node.count);							
 								edgeNumber++;
-								// System.out.println(previous_node.event.id + " is predecessor of " + new_node.event.id);
-							}
-							if (previous_node.event.id > id_of_last_compatible_predecessor) {
-								done = true;
-								break;
-							}
-						}
-					}
-					if (done) break;
-				}				
+								event.actual_count++;
+								//System.out.println(previous_node.event.id + " , " + new_node.event.id);
+					}}}				
 					
 				// Update the final count
 				final_count = final_count.add(new BigInteger(new_node.count+""));

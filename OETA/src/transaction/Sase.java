@@ -63,12 +63,13 @@ public class Sase extends Transaction {
 			
 			event = events.poll();
 			boolean added = false;	
-			int count = (number_of_events_at_second.containsKey(prev_sec)) ? number_of_events_at_second.get(prev_sec) : 0;
-			int required_count = (count * query.getPercentage())/100;
-			//System.out.println("count in " + prev_sec + " : " + count + " required: " + required_count);
-							
+										
 			// Store pointers to its predecessors
-			if (event.sec == curr_sec) {				
+			if (event.sec == curr_sec) {		
+				
+				int count = (number_of_events_at_second.containsKey(prev_sec)) ? number_of_events_at_second.get(prev_sec) : 0;
+				int required_count = (count * query.getPercentage())/100;
+				//System.out.println("count in " + prev_sec + " : " + count + " required: " + required_count);
 						
 				for (Event last : lastEvents) {
 					
@@ -91,12 +92,14 @@ public class Sase extends Transaction {
 				curr_sec = event.sec;
 				number_of_events_in_prev_sec = number_of_events_in_curr_sec;
 				number_of_events_in_curr_sec = 1;
-				number_of_events_at_second.put(prev_sec,number_of_events_in_prev_sec);
-				//System.out.println(prev_sec + " " + number_of_events_in_prev_sec);								
+				number_of_events_at_second.put(prev_sec,number_of_events_in_prev_sec);								
 				
 				// Update last events and draw pointers from event to all last events
 				lastEvents.clear();
 				lastEvents.addAll(newLastEvents);	
+				
+				int required_count = (number_of_events_in_prev_sec * query.getPercentage())/100;
+				//System.out.println("count in " + prev_sec + " : " + count + " required: " + required_count);
 				
 				for (Event last : lastEvents) {
 					if (!event.pointers.contains(last) && !last.marked && event.actual_count<required_count) {
