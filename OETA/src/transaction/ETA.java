@@ -36,11 +36,18 @@ public class ETA extends Transaction {
 		 
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			Graph graph = new Graph();
-			graph = (query.compressible()) ? 
-					graph.getCompressedGraph(events, query) : 
-					graph.getCompleteGraph(events, query);
-			count = count.add(new BigInteger(graph.final_count+""));
-			total_mem.set(total_mem.get() + graph.nodeNumber + graph.edgeNumber);
+			if (query.compressible()) {
+				graph = graph.getCompressedGraph(events, query);
+			} else {
+				if (query.getPercentage() < 100) {
+					graph = graph.getCompleteGraphForPercentage(events, query);
+				} else {
+					graph = graph.getCompleteGraph(events, query);
+				}
+			} 
+					
+			count = count.add(new BigInteger(graph.final_count + ""));
+			total_mem.set(total_mem.get() + graph.nodeNumber);
 			
 			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 		}
