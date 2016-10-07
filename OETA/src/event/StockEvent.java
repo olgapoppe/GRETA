@@ -97,4 +97,8 @@ public class StockEvent extends Event {
 	public String toFile() {
 		return id + ", " + sec + ", " + sector + ", " + company + ", " + price + ", " + volume + ", " + trtype + "\n";
 	}
+	
+	public String toFile(int count) {
+		return count + ", " + sec + ", " + sector + ", " + company + ", " + price + ", " + volume + ", " + trtype + "\n";
+	}
 }

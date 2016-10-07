@@ -9,8 +9,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Stack;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import event.*;
 
 public class InputFileGenerator {
@@ -18,17 +22,17 @@ public class InputFileGenerator {
 	public static void main (String[] args) {
 		
 		/*** Set default input parameters ***/
-		String type = "stock";
+		String type = "";
 		boolean real = false;
-		String path = "src/iofiles/";
-		String i_file_1 = "stream.txt";
-		String i_file_2 = "stream.txt";
-		String o_file = "stream.txt";
+		String path = "";
+		String i_file_1 = "";
+		String i_file_2 = "";
+		String o_file = "";
 		
-		int last_sec = 3;
-		int total_rate = 5;
-		int matched_rate = 3;
-		int lambda = 100;
+		int last_sec = 0;
+		int total_rate = 0;
+		int matched_rate = 0;
+		int lambda = 0;
 		
 		/*** Read input parameters ***/
 		for (int i=0; i<args.length; i++) {
@@ -60,7 +64,8 @@ public class InputFileGenerator {
 					//String input_2 = path + i_file_2;
 					//twoInputsOneOutput (input_1, input_2, output);
 					//transform(input_1,output);
-					replicate(input_1,output);
+					sort(input_1,output);
+					//replicate(input_1,output);
 				} else {					
 					for (int sec=1; sec<=last_sec; sec++) 
 						for (int count=1; count<=total_rate; count++) 
@@ -272,6 +277,52 @@ public class InputFileGenerator {
 			}				
 		} catch (IOException e) { System.err.println(e); }	
 		System.out.println("Count: " + count);
+	}
+	
+	/*** Sort by time stamp ***/
+	public static void sort (String inputfilename, BufferedWriter output) {
+		
+		File input_file = new File(inputfilename);
+		Scanner input;
+		try { 
+			input = new Scanner(input_file); 
+			
+			String eventString = input.nextLine();
+			StockEvent event = StockEvent.parse(eventString);
+			
+			HashMap<Integer,ArrayList<StockEvent>> events_per_second = new HashMap<Integer,ArrayList<StockEvent>>();
+				
+			while (event != null) {
+				
+				// Safe this event in the array of events for event.sec
+				if (!events_per_second.containsKey(event.sec)) {
+					events_per_second.put(event.sec, new ArrayList<StockEvent>());
+				}
+				ArrayList<StockEvent> events = events_per_second.get(event.sec);
+				events.add(event);			
+				
+				// Reset event
+				if (input.hasNextLine()) {
+					eventString = input.nextLine();
+					event = StockEvent.parse(eventString);
+				} else {
+					event = null;
+				}			
+			}		
+			// Write events in order
+			Set<Integer> keys = events_per_second.keySet();
+			List sortedList = new ArrayList(keys);
+			Collections.sort(sortedList);
+			int count = 1;
+			for (int i = 0; i<sortedList.size(); i++) {
+				Integer second = (Integer) sortedList.get(i);
+				ArrayList<StockEvent> events = events_per_second.get(second);
+				for (StockEvent e : events) {
+					output.write(e.toFile(count++)); 
+				}
+			}	
+		} catch (IOException e) { e.printStackTrace(); }
+
 	}
 	
 	/*** Add sector, transform the time stamp to second, separate attribute values by commas ***/
