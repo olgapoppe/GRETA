@@ -30,8 +30,8 @@ public class ClusterEvent extends Event {
         int m = Integer.parseInt(values[2]);
         int j = Integer.parseInt(values[3]);          	
         int c = Integer.parseInt(values[4]);
-        int mem = Integer.parseInt(values[4]);
-        int l = Integer.parseInt(values[4]);
+        int mem = Integer.parseInt(values[5]);
+        int l = Integer.parseInt(values[6]);
     	    	    	
     	ClusterEvent event = new ClusterEvent(i,sec,m,j,c,mem,l);    	
     	//System.out.println(event.toString());    	
