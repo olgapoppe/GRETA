@@ -13,10 +13,12 @@ import query.*;
 public class ETA extends Transaction {
 	
 	Query query;
-	
+	Long agg_time;
+		
 	public ETA (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
+		agg_time = new Long(0);
 	}
 	
 	public void run () {
@@ -40,9 +42,9 @@ public class ETA extends Transaction {
 				graph = graph.getCompressedGraph(events, query);
 			} else {
 				if (query.getPercentage() < 100) {
-					graph = graph.getCompleteGraphForPercentage(events, query);
+					graph = graph.getCompleteGraphForPercentage(events, query, agg_time);
 				} else {
-					graph = graph.getCompleteGraph(events, query);
+					graph = graph.getCompleteGraph(events, query, agg_time);
 				}
 			} 
 					
@@ -51,6 +53,6 @@ public class ETA extends Transaction {
 			
 			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 		}
-		System.out.println("Count: " + count);
+		System.out.println("Count: " + count + "\nAgg time: " + agg_time);
 	}
 }

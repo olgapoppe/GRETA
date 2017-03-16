@@ -21,16 +21,16 @@ public class Graph {
 	
 	// Last node
 	Node last_node;
-		
+			
 	public Graph () {
 		all_nodes = new ArrayList<NodesPerSecond>();
 		nodeNumber = 0;
 		final_count = new BigInteger("0");
 		count_for_current_second = new BigInteger("0");
-		last_node = null;
+		last_node = null;		
 	}
 	
-	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
+	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query, Long agg_time) {		
 		
 		int curr_sec = -1;	
 		Event event = events.peek();			
@@ -57,13 +57,21 @@ public class Graph {
 				// Connect this event to all previous compatible events and compute the count of this node
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {					
-						for (Node previous_node : nodes_per_second.nodes_per_second) {																				
+						for (Node previous_node : nodes_per_second.nodes_per_second) {		
+							
+							long start =  System.currentTimeMillis();
 							new_node.count = new_node.count.add(previous_node.count);							
+							long end =  System.currentTimeMillis();
+							agg_time += end - start;
+																				
 							//System.out.println(previous_node.event.id + " , " + new_node.event.id);
 				}}}				
 					
 				// Update the final count
+				long start1 =  System.currentTimeMillis();
 				final_count = final_count.add(new BigInteger(new_node.count+""));
+				long end1 =  System.currentTimeMillis();
+				agg_time += end1 - start1;
 				//System.out.println(new_node.toString());
 			} else {
 				// Mark all previous events as incompatible with all future events under the contiguous strategy
@@ -76,7 +84,7 @@ public class Graph {
 		return this;
 	}	
 	
-	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
+	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query, Long agg_time) {		
 		
 		int curr_sec = -1;	
 		Event event = events.peek();			
@@ -115,8 +123,13 @@ public class Graph {
 				// Connect this event to all previous compatible events and compute the count of this node
 				if (!marked) {
 					for (Node previous_node : previous_nodes) {																				
-						if (event.actual_count<required_count) {								
+						if (event.actual_count<required_count) {	
+							
+							long start =  System.currentTimeMillis();
 							new_node.count = new_node.count.add(previous_node.count);							
+							long end =  System.currentTimeMillis();
+							agg_time += end - start;
+							
 							event.actual_count++;
 							//System.out.println(previous_node.event.id + " , " + new_node.event.id);
 				}}}				
@@ -131,7 +144,7 @@ public class Graph {
 						nodes_per_second.marked = true;
 			}}}
 			event = events.peek();
-		}		
+		}	
 		return this;
 	}	
 	

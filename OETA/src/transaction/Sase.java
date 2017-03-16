@@ -16,11 +16,13 @@ public class Sase extends Transaction {
 	
 	Query query;
 	HashMap<Integer,Integer> number_of_events_at_second;
+	Long agg_time;
 	
 	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
 		number_of_events_at_second = new HashMap<Integer,Integer>();
+		agg_time = new Long(0);
 	}
 	
 	public void run () {
@@ -42,7 +44,7 @@ public class Sase extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			computeResults(events);
 		}
-		System.out.println("Count: " + count);
+		System.out.println("Count: " + count + "\nAgg time: " + agg_time);
 	}
 	
 	public void computeResults (ConcurrentLinkedQueue<Event> events) {
@@ -133,6 +135,19 @@ public class Sase extends Transaction {
 		
 		//System.out.println(without_duplicates);
 		count = count.add(new BigInteger(without_duplicates.size()+""));
+		
+		// Aggregation step
+		long start =  System.currentTimeMillis();
+		int sum = 0;
+		for (EventSequence seq : without_duplicates) {
+			//System.out.println(seq.toString());
+			for (Event e : seq.events) {
+				sum += e.id;
+			}			
+		}
+		long end =  System.currentTimeMillis();
+		agg_time += end - start;
+						
 		total_mem.set(total_mem.get() + stack.size() + pointerCount + without_duplicates.size());
 	}
 	
