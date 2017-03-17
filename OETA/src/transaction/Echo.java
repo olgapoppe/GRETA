@@ -19,7 +19,7 @@ public class Echo extends Transaction {
 		computeResults();
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
-		total_cpu.set(total_cpu.get() + duration);
+		latency.set(latency.get() + duration);
 		done.countDown();
 	}
 	

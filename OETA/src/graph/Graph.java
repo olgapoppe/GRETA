@@ -30,7 +30,7 @@ public class Graph {
 		last_node = null;		
 	}
 	
-	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query, Long agg_time) {		
+	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
 		int curr_sec = -1;	
 		Event event = events.peek();			
@@ -59,19 +59,13 @@ public class Graph {
 					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {					
 						for (Node previous_node : nodes_per_second.nodes_per_second) {		
 							
-							long start =  System.currentTimeMillis();
-							new_node.count = new_node.count.add(previous_node.count);							
-							long end =  System.currentTimeMillis();
-							agg_time += end - start;
-																				
+							new_node.count = new_node.count.add(previous_node.count);																					
 							//System.out.println(previous_node.event.id + " , " + new_node.event.id);
 				}}}				
 					
 				// Update the final count
-				long start1 =  System.currentTimeMillis();
 				final_count = final_count.add(new BigInteger(new_node.count+""));
-				long end1 =  System.currentTimeMillis();
-				agg_time += end1 - start1;
+				
 				//System.out.println(new_node.toString());
 			} else {
 				// Mark all previous events as incompatible with all future events under the contiguous strategy
@@ -84,7 +78,7 @@ public class Graph {
 		return this;
 	}	
 	
-	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query, Long agg_time) {		
+	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
 		int curr_sec = -1;	
 		Event event = events.peek();			
@@ -123,17 +117,13 @@ public class Graph {
 				// Connect this event to all previous compatible events and compute the count of this node
 				if (!marked) {
 					for (Node previous_node : previous_nodes) {																				
-						if (event.actual_count<required_count) {	
+						if (event.actual_count<required_count) {								
 							
-							long start =  System.currentTimeMillis();
-							new_node.count = new_node.count.add(previous_node.count);							
-							long end =  System.currentTimeMillis();
-							agg_time += end - start;
-							
+							new_node.count = new_node.count.add(previous_node.count);						
 							event.actual_count++;
-							//System.out.println(previous_node.event.id + " , " + new_node.event.id);
-				}}}				
-					
+							System.out.println(new_node.event.id + " : " + previous_node.event.id + ", ");
+				}}}	
+									
 				// Update the final count
 				final_count = final_count.add(new BigInteger(new_node.count+""));
 				//System.out.println(new_node.toString());

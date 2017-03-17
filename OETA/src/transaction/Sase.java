@@ -31,7 +31,7 @@ public class Sase extends Transaction {
 		computeResults();
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
-		total_cpu.set(total_cpu.get() + duration);			
+		latency.set(latency.get() + duration);			
 		done.countDown();
 	}
 	
@@ -148,7 +148,7 @@ public class Sase extends Transaction {
 		long end =  System.currentTimeMillis();
 		agg_time += end - start;
 						
-		total_mem.set(total_mem.get() + stack.size() + pointerCount + without_duplicates.size());
+		memory.set(memory.get() + stack.size() + pointerCount + without_duplicates.size());
 	}
 	
 	// DFS in the stack

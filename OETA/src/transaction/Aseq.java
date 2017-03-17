@@ -21,7 +21,7 @@ public class Aseq extends Transaction {
 		computeResults();
 		long end =  System.currentTimeMillis();
 		long duration = end - start;
-		total_cpu.set(total_cpu.get() + duration);			
+		latency.set(latency.get() + duration);			
 		done.countDown();
 	}
 	
@@ -77,6 +77,6 @@ public class Aseq extends Transaction {
 			event = events.peek();
 		}
 		count = count.add(new BigInteger(count_per_substream+""));
-		total_mem.set(total_mem.get() + prefix_counters_in_previous_second.size() + prefix_counters_in_current_second.size());	
+		memory.set(memory.get() + prefix_counters_in_previous_second.size() + prefix_counters_in_current_second.size());	
 	}
 }

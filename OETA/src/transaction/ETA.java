@@ -13,12 +13,10 @@ import query.*;
 public class ETA extends Transaction {
 	
 	Query query;
-	Long agg_time;
 		
 	public ETA (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
-		agg_time = new Long(0);
 	}
 	
 	public void run () {
@@ -27,7 +25,7 @@ public class ETA extends Transaction {
 		computeResults();
 		long end =  System.currentTimeMillis();
 		long duration = end - start;		
-		total_cpu.set(total_cpu.get() + duration);				
+		latency.set(latency.get() + duration);				
 		done.countDown();
 	}
 
@@ -42,17 +40,16 @@ public class ETA extends Transaction {
 				graph = graph.getCompressedGraph(events, query);
 			} else {
 				if (query.getPercentage() < 100) {
-					graph = graph.getCompleteGraphForPercentage(events, query, agg_time);
+					graph = graph.getCompleteGraphForPercentage(events, query);
 				} else {
-					graph = graph.getCompleteGraph(events, query, agg_time);
+					graph = graph.getCompleteGraph(events, query);
 				}
 			} 
 					
 			count = count.add(new BigInteger(graph.final_count + ""));
-			total_mem.set(total_mem.get() + graph.nodeNumber);
+			memory.set(memory.get() + graph.nodeNumber);
 			
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
+			System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 		}
-		System.out.println("Count: " + count + "\nAgg time: " + agg_time);
 	}
 }
