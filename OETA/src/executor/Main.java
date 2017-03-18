@@ -67,7 +67,7 @@ public class Main {
 	    System.out.println(	"Event type: " + type +
 	    					//"\nInput file: " + input +
 	    					"\nAlgorithm: " + algorithm +
-	    					"\nESS: " + ess +
+	    					//"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
 	    					"\nEvents per window: " + events_per_window +
 							"\n----------------------------------");	    

@@ -14,6 +14,7 @@ public class Graph {
 	
 	// Memory requirement
 	public int nodeNumber;
+	public int edgeNumber;
 	
 	// Counts
 	public BigInteger final_count;
@@ -25,10 +26,60 @@ public class Graph {
 	public Graph () {
 		all_nodes = new ArrayList<NodesPerSecond>();
 		nodeNumber = 0;
+		edgeNumber = 0;
 		final_count = new BigInteger("0");
 		count_for_current_second = new BigInteger("0");
 		last_node = null;		
-	}
+	}	
+	
+	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
+		
+		int curr_sec = -1;	
+		Event event = events.peek();			
+		while (event != null) {
+			
+			event = events.poll();
+			//System.out.println("--------------" + event.id);
+									
+			// Update the current second and all_nodes
+			if (curr_sec < event.sec) {
+				curr_sec = event.sec;
+				NodesPerSecond nodes_in_new_second = new NodesPerSecond(curr_sec);
+				all_nodes.add(nodes_in_new_second);				
+			}
+			
+			// Create and store a new node
+			Node new_node = new Node(event);
+			NodesPerSecond nodes_in_current_second = all_nodes.get(all_nodes.size()-1);
+			nodes_in_current_second.nodes_per_second.add(new_node);
+			
+			// Compute the number of predecessors
+			int numberOfPredecessors = (nodeNumber * query.getPercentage())/100;
+			nodeNumber++;
+			//System.out.println(event.toString() + " -> " + numberOfPredecessors);
+			
+			// Connect this event to all previous compatible events and compute the count of this node
+			for (NodesPerSecond nodes_per_second : all_nodes) {
+				if (nodes_per_second.second < curr_sec && event.actual_count < numberOfPredecessors) {
+					for (Node predecessor : nodes_per_second.nodes_per_second) {																				
+						if (event.actual_count < numberOfPredecessors) {						
+							new_node.count = new_node.count.add(predecessor.count);						
+							event.actual_count++;
+							edgeNumber++;
+							// System.out.println(new_node.event.id + " : " + previous_node.event.id + ", ");
+						} else { break; }
+					}
+				} else { break; }
+			}	
+									
+			// Update the final count
+			final_count = final_count.add(new BigInteger(new_node.count+""));
+			//System.out.println(new_node.toString());
+			 
+			event = events.peek();
+		}	
+		return this;
+	}	
 	
 	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
@@ -76,9 +127,9 @@ public class Graph {
 			event = events.peek();
 		}		
 		return this;
-	}	
+	}
 	
-	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
+	/*public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
 		int curr_sec = -1;	
 		Event event = events.peek();			
@@ -136,7 +187,7 @@ public class Graph {
 			event = events.peek();
 		}	
 		return this;
-	}	
+	}*/		
 	
 	public Graph getCompressedGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
