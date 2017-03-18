@@ -62,7 +62,8 @@ public class Graph {
 			for (NodesPerSecond nodes_per_second : all_nodes) {
 				if (nodes_per_second.second < curr_sec && event.actual_count < numberOfPredecessors) {
 					for (Node predecessor : nodes_per_second.nodes_per_second) {																				
-						if (event.actual_count < numberOfPredecessors) {						
+						if (event.actual_count < numberOfPredecessors) {		
+							new_node.connect(predecessor);
 							new_node.count = new_node.count.add(predecessor.count);						
 							event.actual_count++;
 							edgeNumber++;

@@ -1,8 +1,8 @@
 package transaction;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -10,7 +10,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import event.*;
-import query.Query;
+import graph.*;
+import query.*;
 
 public class Sase extends Transaction {
 	
@@ -37,17 +38,60 @@ public class Sase extends Transaction {
 	
 	public void computeResults () {
 		
-		Set<String> substream_ids = stream.substreams.keySet();
-		
+		Set<String> substream_ids = stream.substreams.keySet();		
 		for (String substream_id : substream_ids) {					
 		 
-			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
-			computeResults(events);
-		}
-		System.out.println("Count: " + count + "\nAgg time: " + agg_time);
+			// Construct the graph for each sub-stream
+			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);			
+			Graph graph = new Graph();
+			graph = graph.getCompleteGraphForPercentage(events, query);
+			
+			// Traverse the pointers from each last event in the graph
+			NodesPerSecond last_nodes = graph.all_nodes.get(graph.all_nodes.size()-1);
+			int maxTrendLength = 0;
+			for (Node last_node : last_nodes.nodes_per_second) {
+				Stack<Node> current_trend = new Stack<Node>();
+				maxTrendLength = traversePointers(last_node,current_trend,maxTrendLength);
+			}			
+			
+			memory.set(memory.get() + graph.nodeNumber + graph.edgeNumber + maxTrendLength);			
+			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
+		}		
 	}
 	
-	public void computeResults (ConcurrentLinkedQueue<Event> events) {
+	// DFS in the stack
+	public int traversePointers (Node node, Stack<Node> current_trend, int maxTrendLength) {       
+			
+		current_trend.push(node);
+		//System.out.println("pushed " + node.event.id);
+        
+		/*** Base case: We hit the end of the graph. Output the current event trend. ***/
+        if (node.previous.isEmpty()) {   
+        	String result = "";        	
+        	Iterator<Node> iter = current_trend.iterator();
+        	while(iter.hasNext()) {
+        		Node n = iter.next();
+        		result += n.event.id + ";";
+        	}
+        	if (maxTrendLength < current_trend.size()) maxTrendLength = current_trend.size();	
+        	//results.add(result);  
+        	
+			//System.out.println("result " + result);
+			
+        } else {
+        /*** Recursive case: Traverse the following nodes. ***/        	
+        	for(Node following : node.previous) {        		
+        		//System.out.println("following of " + node.event.id + " is " + following.event.id);
+        		maxTrendLength = traversePointers(following,current_trend,maxTrendLength);        		
+        	}        	
+        }
+        Node top = current_trend.pop();
+        //System.out.println("popped " + top.event.id);
+        
+        return maxTrendLength;	    	    
+	}	
+	
+	/*public void computeResults (ConcurrentLinkedQueue<Event> events) {
 		
 		// Initiate data structures: stack, last events
 		Stack<Event> stack = new Stack<Event>();
@@ -149,31 +193,7 @@ public class Sase extends Transaction {
 		agg_time += end - start;
 						
 		memory.set(memory.get() + stack.size() + pointerCount + without_duplicates.size());
-	}
-	
-	// DFS in the stack
-	public void traversePointers (Event event, Stack<Event> current_trend, ArrayList<EventSequence> without_duplicates) {       
-			
-		current_trend.push(event);
-		//System.out.println("pushed " + event.id);
-		
-		/*** Count all trends with this new event ***/
-		ArrayList<Event> input = new ArrayList<Event>();
-	    input.addAll(current_trend);
-	    without_duplicates = getIncompleteTrends(input,without_duplicates);
-	    	    	
-	    /*** Traverse the following nodes. ***/
-		for(Event previous : event.pointers) {        		
-			//System.out.println("following of " + previous.id + " is " + event.id);
-	       	traversePointers(previous,current_trend,without_duplicates);        		
-	    }        	
-	    
-	    Event top = current_trend.pop();
-	    if (!top.flagged) {
-	    	top.flagged = true;
-	    	//System.out.println("popped and flagged " + top.id);
-	    }  	    	    
-	}	
+	}*/
 	
 	public ArrayList<EventSequence> getIncompleteTrends (ArrayList<Event> elements, ArrayList<EventSequence> without_duplicates) {
 		
