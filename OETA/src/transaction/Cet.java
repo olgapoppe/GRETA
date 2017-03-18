@@ -42,13 +42,14 @@ public class Cet extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);			
 			Graph graph = new Graph();
 			graph = graph.getCompleteGraphForPercentage(events, query);
+			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4);
 			
-			// Traverse the pointers from each last event in the graph
-			NodesPerSecond last_nodes = graph.all_nodes.get(graph.all_nodes.size()-1);
-			final_count = traversePointers(last_nodes.nodes_per_second);			
+			// Traverse the pointers from each event in the graph
+			NodesPerSecond nodes = graph.all_nodes.get(graph.all_nodes.size()-1);		
+			final_count = traversePointers(nodes.nodes_per_second);
+			
 			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
-			
-			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + final_count.intValue());
+						
 			final_count = BigInteger.ZERO;
 		}			
 	}
@@ -66,22 +67,26 @@ public class Cet extends Transaction {
 				
 			/*** Base case: Create the results for the first nodes ***/
 			if (this_node.results.isEmpty()) {
-				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
-				this_node.results.add(new_trend);				
-			}
 				
+				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
+				this_node.results.add(new_trend);
+				System.out.println(new_trend.sequence);
+				final_count = final_count.add(BigInteger.ONE);
+				memory.set(memory.get() + new_trend.getEventNumber() * 4);
+				
+			} 				
 			/*** Recursive case: Copy results from the current node to its previous node and  
-			 *** append this previous node to each copied result ***/
-			if (!this_node.previous.isEmpty()) {			
-					
-				// System.out.println(this_node.event.id + ": " + this_node.previous.toString());
-					
+			 *** append this previous node to each copied result ***/			
+			if (!this_node.previous.isEmpty()) {
 				for (Node next_node : this_node.previous) {
 					
 					for (EventTrend old_trend : this_node.results) {
 						String new_seq = next_node.toString() + ";" + old_trend.sequence;
 						EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
-						next_node.results.add(new_trend);					
+						next_node.results.add(new_trend);
+						System.out.println(new_trend.sequence);
+						final_count = final_count.add(BigInteger.ONE);
+						memory.set(memory.get() + new_trend.getEventNumber() * 4);
 					}														
 					
 					// Check that following is not in next_level
@@ -92,15 +97,11 @@ public class Cet extends Transaction {
 				}
 				// Delete intermediate results
 				this_node.results.clear();
-			} else {
-				// Count all results from a first node
-				final_count = final_count.add(new BigInteger(this_node.results.size()+""));
-				//System.out.print(this_node.resultsToString());					
-			}
+			} 		
 		}
 					
 		// Call this method recursively
-		if (!next_level_array.isEmpty()) final_count = final_count.add(traversePointers(next_level_array));
+		if (!next_level_array.isEmpty()) final_count = traversePointers(next_level_array);
 			
 		return final_count;
 	}

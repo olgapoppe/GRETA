@@ -32,6 +32,14 @@ public class Node {
 		return event.id + ""; 
 	}
 	
+	public int getMemoryForResults () {
+		int memory = 0;
+		for (EventTrend trend : results) {
+			memory += trend.sequence.split(";").length;
+		}				
+		return memory;
+	}
+	
 	public String resultsToString () {
 		String result = "";
 		for(EventTrend trend : results) { 				

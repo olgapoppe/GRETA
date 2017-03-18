@@ -37,7 +37,7 @@ public class Main {
 	    /*** Input and output ***/
 	    // Set default values
 	    String type = "stock";
-	    String path = "OETA/src/iofiles/";
+	    String path = "src/iofiles/";
 		String inputfile = "stream.txt";
 		
 		String algorithm = "greta";
