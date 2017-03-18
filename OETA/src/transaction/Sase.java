@@ -1,7 +1,6 @@
 package transaction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
@@ -16,14 +15,10 @@ import query.*;
 public class Sase extends Transaction {
 	
 	Query query;
-	HashMap<Integer,Integer> number_of_events_at_second;
-	Long agg_time;
-	
+			
 	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
-		number_of_events_at_second = new HashMap<Integer,Integer>();
-		agg_time = new Long(0);
 	}
 	
 	public void run () {
@@ -54,8 +49,8 @@ public class Sase extends Transaction {
 				maxTrendLength = traversePointers(last_node,current_trend,maxTrendLength);
 			}			
 			
-			memory.set(memory.get() + graph.nodeNumber + graph.edgeNumber + maxTrendLength);			
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
+			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxTrendLength);			
+			// System.out.println("Sub-stream id: " + substream_id + " with count ");
 		}		
 	}
 	

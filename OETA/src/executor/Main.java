@@ -40,7 +40,7 @@ public class Main {
 	    String path = "OETA/src/iofiles/";
 		String inputfile = "stream.txt";
 		
-		String algorithm = "echo";
+		String algorithm = "greta";
 		String ess = "any";
 		String predicate = "none";		
 		int events_per_window = Integer.MAX_VALUE;
@@ -83,18 +83,18 @@ public class Main {
 		
 		/*** EXECUTORS ***/
 		Query query = new Query (ess,predicate);
-		ExecutorService executor = Executors.newFixedThreadPool(10);
+		ExecutorService executor = Executors.newFixedThreadPool(3);
 		Transaction transaction;
 		if (algorithm.equals("greta")) {
 			transaction = new Greta(stream,query,done,latency,memory);
 		} else {
-		if (algorithm.equals("aseq")) {
-			transaction = new Aseq(stream,done,latency,memory);
+		if (algorithm.equals("cet")) {
+			transaction = new Cet(stream,query,done,latency,memory);
 		} else {
 		if (algorithm.equals("sase")) {
 			transaction = new Sase(stream,query,done,latency,memory);
 		} else {
-			transaction = new Echo(stream,done,latency,memory);
+			transaction = new Aseq(stream,done,latency,memory);
 		}}}
 		executor.execute(transaction);
 				

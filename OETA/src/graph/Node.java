@@ -7,15 +7,17 @@ import event.*;
 public class Node {
 	
 	public Event event;
-	public ArrayList<Node> previous;
 	BigInteger count;
 	public boolean marked;
+	public ArrayList<Node> previous;
+	public ArrayList<EventTrend> results;
 			
 	public Node (Event e) {
 		event = e;
-		previous = new ArrayList<Node>();
 		count = new BigInteger("1");
 		marked = false;
+		previous = new ArrayList<Node>();
+		results = new ArrayList<EventTrend>();
 	}
 	
 	public boolean equals (Node other) {
@@ -24,9 +26,17 @@ public class Node {
 	
 	public void connect (Node old_event) {
 		if (!previous.contains(old_event)) previous.add(old_event);
-	}	
+	}
 	
 	public String toString() {
-		return event.toString() + " with count: " + count; 
+		return event.id + ""; 
+	}
+	
+	public String resultsToString () {
+		String result = "";
+		for(EventTrend trend : results) { 				
+			result += trend.sequence + "\n"; 				
+		}	
+		return result;
 	}
 }
