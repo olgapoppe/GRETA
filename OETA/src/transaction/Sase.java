@@ -1,5 +1,6 @@
 package transaction;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -15,10 +16,12 @@ import query.*;
 public class Sase extends Transaction {
 	
 	Query query;
+	public BigInteger final_count;
 			
 	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
+		final_count = BigInteger.ZERO;
 	}
 	
 	public void run () {
@@ -48,9 +51,10 @@ public class Sase extends Transaction {
 				Stack<Node> current_trend = new Stack<Node>();
 				maxTrendLength = traversePointers(last_node,current_trend,maxTrendLength);
 			}			
+			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 			
-			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxTrendLength);			
-			// System.out.println("Sub-stream id: " + substream_id + " with count ");
+			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxTrendLength);
+			final_count = BigInteger.ZERO;
 		}		
 	}
 	
@@ -70,6 +74,7 @@ public class Sase extends Transaction {
         	}
         	if (maxTrendLength < current_trend.size()) maxTrendLength = current_trend.size();	
         	//results.add(result);  
+        	final_count = final_count.add(BigInteger.ONE);
         	
 			//System.out.println("result " + result);
 			

@@ -1,26 +1,26 @@
 package transaction;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import event.*;
-import graph.Graph;
-import graph.Node;
-import graph.NodesPerSecond;
-import query.Query;
+import graph.*;
+import query.*;
 
 public class Cet extends Transaction {
 	
 	Query query;
+	public BigInteger final_count;
 	
 	public Cet (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
+		final_count = BigInteger.ZERO;
 	}
 	
 	public void run() {
@@ -45,15 +45,16 @@ public class Cet extends Transaction {
 			
 			// Traverse the pointers from each last event in the graph
 			NodesPerSecond last_nodes = graph.all_nodes.get(graph.all_nodes.size()-1);
-			int count = traversePointers(last_nodes.nodes_per_second, 0);			
-			System.out.println("Sub-stream id: " + substream_id + " with count " + count);
+			final_count = traversePointers(last_nodes.nodes_per_second);			
+			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 			
-			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + count);		
+			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + final_count.intValue());
+			final_count = BigInteger.ZERO;
 		}			
 	}
 	
 	// BFS storing intermediate results in all nodes at the current level
-	public static int traversePointers (ArrayList<Node> current_level, int count) { 
+	public BigInteger traversePointers (ArrayList<Node> current_level) { 
 		
 		// Array for recursive call of this method
 		ArrayList<Node> next_level_array = new ArrayList<Node>();
@@ -93,14 +94,14 @@ public class Cet extends Transaction {
 				this_node.results.clear();
 			} else {
 				// Count all results from a first node
-				count += this_node.results.size();
+				final_count = final_count.add(new BigInteger(this_node.results.size()+""));
 				//System.out.print(this_node.resultsToString());					
 			}
 		}
 					
 		// Call this method recursively
-		if (!next_level_array.isEmpty()) count += traversePointers(next_level_array, count);
+		if (!next_level_array.isEmpty()) final_count = final_count.add(traversePointers(next_level_array));
 			
-		return count;
+		return final_count;
 	}
 }
