@@ -45,10 +45,10 @@ public class Cet extends Transaction {
 			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4);
 			
 			// Traverse the pointers from each event in the graph
-			NodesPerSecond nodes = graph.all_nodes.get(graph.all_nodes.size()-1);		
-			final_count = traversePointers(nodes.nodes_per_second);
-			
-			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
+			for(NodesPerSecond nodes : graph.all_nodes) {		
+				final_count = traversePointers(nodes.nodes_per_second);
+			}
+			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 						
 			final_count = BigInteger.ZERO;
 		}			
@@ -70,10 +70,9 @@ public class Cet extends Transaction {
 				
 				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
 				this_node.results.add(new_trend);
-				System.out.println(new_trend.sequence);
+				//System.out.println(new_trend.sequence);
 				final_count = final_count.add(BigInteger.ONE);
-				memory.set(memory.get() + new_trend.getEventNumber() * 4);
-				
+				memory.set(memory.get() + new_trend.getEventNumber() * 4);				
 			} 				
 			/*** Recursive case: Copy results from the current node to its previous node and  
 			 *** append this previous node to each copied result ***/			
@@ -84,7 +83,7 @@ public class Cet extends Transaction {
 						String new_seq = next_node.toString() + ";" + old_trend.sequence;
 						EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
 						next_node.results.add(new_trend);
-						System.out.println(new_trend.sequence);
+						//System.out.println(new_trend.sequence);
 						final_count = final_count.add(BigInteger.ONE);
 						memory.set(memory.get() + new_trend.getEventNumber() * 4);
 					}														
