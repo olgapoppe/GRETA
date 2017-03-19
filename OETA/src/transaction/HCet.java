@@ -47,7 +47,7 @@ public class HCet extends Transaction {
 			graph = graph.getCompleteGraphForPercentage(events, query);
 			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4);
 			
-			// Traverse the pointers from each event in the graph
+			// Traverse the pointers from each event in each graphlet
 			ArrayList<Graph> graphlets = graph.partition(number_of_graphlets);
 			for (Graph graphlet : graphlets) {
 				for(NodesPerSecond nodes : graphlet.all_nodes) {		
@@ -75,7 +75,7 @@ public class HCet extends Transaction {
 				
 				EventTrend new_trend = new EventTrend(this_node, this_node, this_node.toString());
 				this_node.results.add(new_trend);
-				//System.out.println(new_trend.sequence);
+				System.out.println(new_trend.sequence);
 				final_count = final_count.add(BigInteger.ONE);
 				memory.set(memory.get() + new_trend.getEventNumber() * 4);				
 			} 				
@@ -89,7 +89,7 @@ public class HCet extends Transaction {
 							String new_seq = next_node.toString() + ";" + old_trend.sequence;
 							EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
 							next_node.results.add(new_trend);
-							//System.out.println(new_trend.sequence);
+							System.out.println(new_trend.sequence);
 							final_count = final_count.add(BigInteger.ONE);
 							memory.set(memory.get() + new_trend.getEventNumber() * 4);
 						}														
