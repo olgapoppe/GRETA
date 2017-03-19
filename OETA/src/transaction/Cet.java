@@ -48,7 +48,7 @@ public class Cet extends Transaction {
 			for(NodesPerSecond nodes : graph.all_nodes) {		
 				final_count = traversePointers(nodes.nodes_per_second);
 			}
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
+			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 						
 			final_count = BigInteger.ZERO;
 		}			
