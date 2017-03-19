@@ -15,6 +15,7 @@ public class Graph {
 	// Memory requirement
 	public int nodeNumber;
 	public int edgeNumber;
+	public int start;
 	
 	// Counts
 	public BigInteger final_count;
@@ -27,6 +28,7 @@ public class Graph {
 		all_nodes = new ArrayList<NodesPerSecond>();
 		nodeNumber = 0;
 		edgeNumber = 0;
+		start = 0;
 		final_count = new BigInteger("0");
 		count_for_current_second = new BigInteger("0");
 		last_node = null;		
@@ -81,6 +83,37 @@ public class Graph {
 		}	
 		return this;
 	}	
+	
+	public ArrayList<Graph> partition (int number_of_graphlets) {
+		
+		ArrayList<Graph> graphlets = new ArrayList<Graph>();
+		
+		int balanced_graphlet_size = nodeNumber/number_of_graphlets;
+		//System.out.println("Balanced partition size: " + balanced_graphlet_size + " Graph size: " + nodeNumber);
+		Graph graphlet = new Graph();
+				
+		for (NodesPerSecond nodes : all_nodes) {
+			if (graphlet.nodeNumber + nodes.nodes_per_second.size() <= balanced_graphlet_size) {
+				// Add nodes per second to the current graphlet 
+				graphlet.all_nodes.add(nodes);
+				graphlet.nodeNumber += nodes.nodes_per_second.size();
+			} else {
+				// Add previous graphlet to the result
+				if (graphlet.nodeNumber > 0) graphlets.add(graphlet);
+				// Create a new graphlet and add nodes per second to it
+				graphlet = new Graph();
+				graphlet.start = nodes.second;
+				graphlet.all_nodes.add(nodes);
+				graphlet.nodeNumber = nodes.nodes_per_second.size();
+			}
+		}
+		// Add last graphlet to the result
+		if (graphlet.nodeNumber > 0) graphlets.add(graphlet);
+		// Print resulting graphlets
+		//for (Graph g : graphlets) System.out.println("--->" + g.nodeNumber);
+				
+		return graphlets;		
+	}
 	
 	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		

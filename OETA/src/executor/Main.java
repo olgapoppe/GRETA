@@ -2,6 +2,8 @@ package executor;
 
 //import java.nio.file.Path;
 //import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -9,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import query.Query;
 import event.*;
 import transaction.*;
@@ -30,9 +33,9 @@ public class Main {
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
 	    System.out.println("----------------------------------\nCurrent Date: " + ft.format(dNow));
 	    
-	    /*Path currentRelativePath = Paths.get("");
+	    Path currentRelativePath = Paths.get("");
 	    String s = currentRelativePath.toAbsolutePath().toString();
-	    System.out.println("Current relative path is: " + s);*/
+	    System.out.println("Current relative path is: " + s);
 	    
 	    /*** Input and output ***/
 	    // Set default values
@@ -44,6 +47,7 @@ public class Main {
 		String ess = "any";
 		String predicate = "none";		
 		int events_per_window = Integer.MAX_VALUE;
+		int number_of_graphlets = 1;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -54,6 +58,7 @@ public class Main {
 			if (args[i].equals("-ess")) 		ess = args[++i];
 			if (args[i].equals("-pred")) 		predicate = args[++i];
 			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
+			if (args[i].equals("-graphlets")) 	number_of_graphlets = Integer.parseInt(args[++i]);
 		}	    
 	    
 	    // Make sure the input parameters are correct
@@ -70,6 +75,7 @@ public class Main {
 	    					//"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
 	    					"\nEvents per window: " + events_per_window +
+	    					"\nNumber of graphlets: " + number_of_graphlets +
 							"\n----------------------------------");	    
 
 		/*** SHARED DATA STRUCTURES ***/		
@@ -88,14 +94,17 @@ public class Main {
 		if (algorithm.equals("greta")) {
 			transaction = new Greta(stream,query,done,latency,memory);
 		} else {
-		if (algorithm.equals("cet")) {
-			transaction = new Cet(stream,query,done,latency,memory);
+		if (algorithm.equals("hcet")) {
+			transaction = new HCet(stream,query,done,latency,memory,number_of_graphlets);
+		} else {	
+		if (algorithm.equals("tcet")) {
+			transaction = new TCet(stream,query,done,latency,memory);
 		} else {
 		if (algorithm.equals("sase")) {
 			transaction = new Sase(stream,query,done,latency,memory);
 		} else {
 			transaction = new Aseq(stream,done,latency,memory);
-		}}}
+		}}}}
 		executor.execute(transaction);
 				
 		/*** Wait till all input events are processed and terminate the executor ***/

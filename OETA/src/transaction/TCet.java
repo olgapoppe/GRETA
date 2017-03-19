@@ -12,12 +12,12 @@ import event.*;
 import graph.*;
 import query.*;
 
-public class Cet extends Transaction {
+public class TCet extends Transaction {
 	
 	Query query;
 	public BigInteger final_count;
 	
-	public Cet (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+	public TCet (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
 		super(str,d,time,mem);
 		query = q;
 		final_count = BigInteger.ZERO;
