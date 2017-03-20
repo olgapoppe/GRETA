@@ -122,6 +122,9 @@ public class HCet extends Transaction {
 			for (Graph graphlet2 : original_graphlets) {
 				if (graphlet1.start < graphlet2.start && graphlet1.end < graphlet2.start) {
 					
+					//System.out.println("Graphlet1 " + graphlet1.start + "," + graphlet1.end +
+					//		" Graphlet2 " + graphlet2.start + "," + graphlet2.end);
+					
 					Graph next_level_graphlet = new Graph();
 					next_level_graphlet.start = graphlet1.start;
 					next_level_graphlet.end = graphlet2.end;
@@ -129,7 +132,7 @@ public class HCet extends Transaction {
 					for (EventTrend trend1 : graphlet1.trends) {
 						for (EventTrend trend2 : graphlet2.trends) {
 							
-							if (trend2.last_node.previous.contains(trend1.first_node)) {
+							if (trend2.first_node.previous.contains(trend1.last_node)) {
 							
 								String next_level_sequence = trend1.sequence + " " + trend2.sequence;
 								EventTrend next_level_trend = new EventTrend(trend1.first_node, trend2.last_node, next_level_sequence);
@@ -137,10 +140,10 @@ public class HCet extends Transaction {
 							 
 								//System.out.println(next_level_sequence);
 								final_count = final_count.add(BigInteger.ONE);
-							}
+							} 
 						}
 					}
-					next_level_graphlets.add(next_level_graphlet);
+					if (!next_level_graphlet.trends.isEmpty()) next_level_graphlets.add(next_level_graphlet);
 				}
 			}
 		}

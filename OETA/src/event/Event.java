@@ -2,6 +2,8 @@ package event;
 
 import java.util.ArrayList;
 
+import graph.Node;
+
 public abstract class Event {
 	
 	public int id;
@@ -42,6 +44,10 @@ public abstract class Event {
 			event = PositionReport.parse(line);
 		}}}
 		return event;
+	}
+	
+	public boolean equals (Event other) {
+		return id == other.id;
 	}
 	
 	public abstract String getSubstreamid();
