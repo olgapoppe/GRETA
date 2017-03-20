@@ -16,6 +16,7 @@ public class Graph {
 	public int nodeNumber;
 	public int edgeNumber;
 	public int start;
+	public int end;
 	
 	// Counts
 	public BigInteger final_count;
@@ -23,15 +24,20 @@ public class Graph {
 	
 	// Last node
 	Node last_node;
+	
+	// Trends
+	public ArrayList<EventTrend> trends;
 			
 	public Graph () {
 		all_nodes = new ArrayList<NodesPerSecond>();
 		nodeNumber = 0;
 		edgeNumber = 0;
 		start = 0;
+		end = 0;
 		final_count = new BigInteger("0");
 		count_for_current_second = new BigInteger("0");
-		last_node = null;		
+		last_node = null;	
+		trends = new ArrayList<EventTrend>();
 	}	
 	
 	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
@@ -91,18 +97,22 @@ public class Graph {
 		int balanced_graphlet_size = nodeNumber/number_of_graphlets;
 		//System.out.println("Balanced partition size: " + balanced_graphlet_size + " Graph size: " + nodeNumber);
 		Graph graphlet = new Graph();
+		graphlet.start = all_nodes.get(0).second;
+		graphlet.end = all_nodes.get(0).second;
 				
 		for (NodesPerSecond nodes : all_nodes) {
 			if (graphlet.nodeNumber + nodes.nodes_per_second.size() <= balanced_graphlet_size) {
 				// Add nodes per second to the current graphlet 
 				graphlet.all_nodes.add(nodes);
 				graphlet.nodeNumber += nodes.nodes_per_second.size();
+				graphlet.end = nodes.second;
 			} else {
 				// Add previous graphlet to the result
 				if (graphlet.nodeNumber > 0) graphlets.add(graphlet);
 				// Create a new graphlet and add nodes per second to it
 				graphlet = new Graph();
 				graphlet.start = nodes.second;
+				graphlet.end = nodes.second;
 				graphlet.all_nodes.add(nodes);
 				graphlet.nodeNumber = nodes.nodes_per_second.size();
 			}
