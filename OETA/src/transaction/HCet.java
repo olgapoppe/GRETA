@@ -82,30 +82,32 @@ public class HCet extends Transaction {
 				memory.set(memory.get() + new_trend.getEventNumber() * 4);				
 			} 				
 			/*** Recursive case: Copy results from the current node to its previous node and  
-			 *** append this previous node to each copied result ***/			
-			for (Node next_node : this_node.previous) {
-				if (next_node.event.sec >= graphlet.start) {					
-					for (EventTrend old_trend : this_node.results) {
+			 *** append this previous node to each copied result ***/		
+			if (!this_node.previous.isEmpty()) {
+				for (Node next_node : this_node.previous) {
+					if (next_node.event.sec >= graphlet.start) {					
+						for (EventTrend old_trend : this_node.results) {
 						
-						String new_seq = next_node.toString() + ";" + old_trend.sequence;
-						EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
-						next_node.results.add(new_trend);
-						graphlet.trends.add(new_trend);
+							String new_seq = next_node.toString() + ";" + old_trend.sequence;
+							EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
+							next_node.results.add(new_trend);
+							graphlet.trends.add(new_trend);
 						
-						//System.out.println(new_trend.sequence);
-						final_count = final_count.add(BigInteger.ONE);
-						memory.set(memory.get() + new_trend.getEventNumber() * 4);
-					}														
+							//System.out.println(new_trend.sequence);
+							final_count = final_count.add(BigInteger.ONE);
+							memory.set(memory.get() + new_trend.getEventNumber() * 4);
+						}														
 					
-					// Check that following is not in next_level
-					if (!next_level_hash.containsKey(next_node.event.id)) {
-						next_level_nodes.add(next_node); 
-						next_level_hash.put(next_node.event.id,1);
+						// Check that following is not in next_level
+						if (!next_level_hash.containsKey(next_node.event.id)) {
+							next_level_nodes.add(next_node); 
+							next_level_hash.put(next_node.event.id,1);
+						}
 					}
 				}
+				// Delete intermediate results
+				this_node.results.clear();	
 			}
-			// Delete intermediate results
-			this_node.results.clear();			 		
 		}					
 		// Call this method recursively
 		if (!next_level_nodes.isEmpty()) final_count = withinGraphlets(graphlet, next_level_nodes);			
