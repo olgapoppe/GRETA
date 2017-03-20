@@ -140,6 +140,7 @@ public class HCet extends Transaction {
 							 
 								//System.out.println(next_level_sequence);
 								final_count = final_count.add(BigInteger.ONE);
+								memory.set(memory.get() + next_level_trend.getEventNumber() * 4);
 							} 
 						}
 					}
