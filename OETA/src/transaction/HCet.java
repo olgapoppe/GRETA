@@ -56,8 +56,7 @@ public class HCet extends Transaction {
 			// Compute and output trends across graphlets
 			final_count = acrossGraphlets(graphlets, graphlets);
 			
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
-						
+			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());						
 			final_count = BigInteger.ZERO;
 		}			
 	}
@@ -84,30 +83,29 @@ public class HCet extends Transaction {
 			} 				
 			/*** Recursive case: Copy results from the current node to its previous node and  
 			 *** append this previous node to each copied result ***/			
-			if (!this_node.previous.isEmpty()) {
-				for (Node next_node : this_node.previous) {
-					if (next_node.event.sec >= graphlet.start) {
+			for (Node next_node : this_node.previous) {
+				if (next_node.event.sec >= graphlet.start) {					
+					for (EventTrend old_trend : this_node.results) {
+						
+						String new_seq = next_node.toString() + ";" + old_trend.sequence;
+						EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
+						next_node.results.add(new_trend);
+						graphlet.trends.add(new_trend);
+						
+						//System.out.println(new_trend.sequence);
+						final_count = final_count.add(BigInteger.ONE);
+						memory.set(memory.get() + new_trend.getEventNumber() * 4);
+					}														
 					
-						for (EventTrend old_trend : this_node.results) {
-							String new_seq = next_node.toString() + ";" + old_trend.sequence;
-							EventTrend new_trend = new EventTrend(next_node, old_trend.last_node, new_seq);
-							next_node.results.add(new_trend);
-							graphlet.trends.add(new_trend);
-							//System.out.println(new_trend.sequence);
-							final_count = final_count.add(BigInteger.ONE);
-							memory.set(memory.get() + new_trend.getEventNumber() * 4);
-						}														
-					
-						// Check that following is not in next_level
-						if (!next_level_hash.containsKey(next_node.event.id)) {
-							next_level_nodes.add(next_node); 
-							next_level_hash.put(next_node.event.id,1);
-						}
+					// Check that following is not in next_level
+					if (!next_level_hash.containsKey(next_node.event.id)) {
+						next_level_nodes.add(next_node); 
+						next_level_hash.put(next_node.event.id,1);
 					}
 				}
-				// Delete intermediate results
-				this_node.results.clear();				
-			} 		
+			}
+			// Delete intermediate results
+			this_node.results.clear();			 		
 		}					
 		// Call this method recursively
 		if (!next_level_nodes.isEmpty()) final_count = withinGraphlets(graphlet, next_level_nodes);			
@@ -120,18 +118,14 @@ public class HCet extends Transaction {
 		
 		for (Graph graphlet1 : new_graphlets) {			
 			for (Graph graphlet2 : original_graphlets) {
-				if (graphlet1.start < graphlet2.start && graphlet1.end < graphlet2.start) {
-					
-					//System.out.println("Graphlet1 " + graphlet1.start + "," + graphlet1.end +
-					//		" Graphlet2 " + graphlet2.start + "," + graphlet2.end);
+				if (graphlet1.start < graphlet2.start && graphlet1.end < graphlet2.start) {				
 					
 					Graph next_level_graphlet = new Graph();
 					next_level_graphlet.start = graphlet1.start;
 					next_level_graphlet.end = graphlet2.end;
 										
 					for (EventTrend trend1 : graphlet1.trends) {
-						for (EventTrend trend2 : graphlet2.trends) {
-							
+						for (EventTrend trend2 : graphlet2.trends) {							
 							if (trend2.first_node.previous.contains(trend1.last_node)) {
 							
 								String next_level_sequence = trend1.sequence + " " + trend2.sequence;
