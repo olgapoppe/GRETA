@@ -68,7 +68,7 @@ public class Graph {
 			//System.out.println(event.toString() + " -> " + numberOfPredecessors);
 			
 			// Every n'th event marks all previous events as incompatible with all future events
-			if (event.id == number_of_events_per_window/(negated_events_per_window+1)) {
+			if (nodeNumber == number_of_events_per_window/(negated_events_per_window+1)) {
 				System.out.println("Negated event at " + event.sec);
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec) {
