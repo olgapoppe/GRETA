@@ -67,16 +67,17 @@ public class Graph {
 			nodeNumber++;
 						
 			// Every n'th event marks all previous events as incompatible with all future events
-			if (negated_events_per_window+1 > 1) {
-			if (nodeNumber%(number_of_events_per_window/(negated_events_per_window+1)) == 0) {
+			if (negated_events_per_window > 0) {
+				int n = number_of_events_per_window/(1+negated_events_per_window);
+				if (nodeNumber%n == 0) {
 			
-				System.out.println("Negated event at " + event.sec);
-				for (NodesPerSecond nodes_per_second : all_nodes) {
-					if (nodes_per_second.second < curr_sec) {
-						nodes_per_second.marked = true;						
+					System.out.println("Negated event at " + event.sec);
+					for (NodesPerSecond nodes_per_second : all_nodes) {
+						if (nodes_per_second.second < curr_sec) {
+							nodes_per_second.marked = true;						
+						}
 					}
 				}
-			}
 			}
 			
 			// Connect this event to all previous compatible events and compute the count of this node
