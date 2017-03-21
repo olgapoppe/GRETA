@@ -19,6 +19,9 @@ import event.*;
 
 public class InputFileGenerator {
 	
+	// -type stock -path ../../../Dropbox/DataSets/Stock/ -i_file_1 replicated.txt -o_file sorted.txt -real 1
+	// -type cluster -sec 1000 -lambda 20 -path ../../../Dropbox/DataSets/Cluster/ -o_file cluster-10.txt -groups 10 
+	
 	public static void main (String[] args) {
 		
 		/*** Set default input parameters ***/
@@ -33,6 +36,7 @@ public class InputFileGenerator {
 		int total_rate = 0;
 		int matched_rate = 0;
 		int lambda = 0;
+		int number_of_groups = 0;
 		
 		/*** Read input parameters ***/
 		for (int i=0; i<args.length; i++) {
@@ -46,6 +50,7 @@ public class InputFileGenerator {
 			if (args[i].equals("-trate"))   	total_rate = Integer.parseInt(args[++i]);
 			if (args[i].equals("-mrate")) 		matched_rate = Integer.parseInt(args[++i]);
 			if (args[i].equals("-lambda")) 		lambda = Integer.parseInt(args[++i]);
+			if (args[i].equals("-groups")) 		number_of_groups = Integer.parseInt(args[++i]);
 		}
 				
 		/*** Generate input event stream ***/
@@ -71,19 +76,18 @@ public class InputFileGenerator {
 						for (int count=1; count<=total_rate; count++) 
 							generate_stock_stream(output, id++, sec, count, matched_rate, lambda);	
 				}
-			} else {
-			//if (type.equals("cluster")) {
+			} else { // Cluster data set
+				
 				Random random = new Random();
 				int min = 0;
-	        	int max = 3000;
+	        	int max = 10;
 				for (int sec=1; sec<=last_sec; sec++) {					
 		        	int rate = random.nextInt((max - min) + 1) + min;
-					for (int count=1; count<=rate; count++) 			
-						generate_cluster_stream(output, sec, id++, lambda);
+		        	for (int count=1; count<=rate; count++) {			
+						generate_cluster_stream (output, sec, id++, lambda, number_of_groups);
+					}
 				}
-			//} else {
-				
-			}//}
+			}
 			// Close the file
 			output.close();
 			System.out.println("Done!");
@@ -92,13 +96,13 @@ public class InputFileGenerator {
 	}
 	
 	/*** SYNTHETIC CLUSER ***/
-	public static void generate_cluster_stream (BufferedWriter output, int sec, int id, double lambda) {
+	public static void generate_cluster_stream (BufferedWriter output, int sec, int id, double lambda, int number_of_groups) {
 		
 		Random random = new Random();
 		        
 		// Mapper identifier, job identifier, cpu and memory measurements are random values in a range between min and max
         int min = 1;
-        int max = 10;
+        int max = number_of_groups;
         int mapper = random.nextInt((max - min) + 1) + min;
         int job = random.nextInt((max - min) + 1) + min;       
         
@@ -117,7 +121,7 @@ public class InputFileGenerator {
         // Save this event in the file
         String event = id + "," + sec + "," + mapper + "," + job + "," + cpu + "," + memory + "," + load + "\n";
         try { output.append(event); } catch (IOException e) { e.printStackTrace(); }
-        //System.out.println("id " + count + "sec " + sec + " mapper " + mapper + " job " + job + " cpu " + cpu + " mem " + memory + " load " + load);
+        //System.out.println("id " + id + "sec " + sec + " mapper " + mapper + " job " + job + " cpu " + cpu + " mem " + memory + " load " + load);
 	}
 	
 	/*** SYNTHETIC STOCK ***/

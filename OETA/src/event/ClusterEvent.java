@@ -39,7 +39,7 @@ public class ClusterEvent extends Event {
 	}
 	
 	public String getSubstreamid() {
-		return mapper + "_" + job;
+		return mapper + "";
 	}
 	
 	public boolean isRelevant() {
