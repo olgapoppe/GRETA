@@ -18,7 +18,7 @@ public class Main {
 	 * -type stock -path src/iofiles/ -file stream.txt -pred 100% -epw 10 -algo hcet -graphlets 2
 	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -pred 50% -epw 3520 -algo greta
 	 * -type cluster -path ../../../Dropbox/DataSets/Cluster/ -file cluster.txt -pred 50% -epw 443947 -algo greta	 
-	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/last_10_min/ -file 0;2.dat -pred 50% -epw 492654 -algo greta
+	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/last_10_min/ -file 0;2.dat -pred 50% -epw 1000 -algo greta
 	 */
 	public static void main (String[] args) { 
 		

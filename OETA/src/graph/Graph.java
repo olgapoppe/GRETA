@@ -66,9 +66,19 @@ public class Graph {
 			nodeNumber++;
 			//System.out.println(event.toString() + " -> " + numberOfPredecessors);
 			
+			// Every 100'th event marks all previous events as incompatible with all future events
+			if (nodeNumber%100 == 0) {
+				System.out.println("A negated pattern matches at " + event.sec + " sec");
+				for (NodesPerSecond nodes_per_second : all_nodes) {
+					if (nodes_per_second.second < curr_sec) {
+						nodes_per_second.marked = true;
+					}
+				}
+			}
+			
 			// Connect this event to all previous compatible events and compute the count of this node
 			for (NodesPerSecond nodes_per_second : all_nodes) {
-				if (nodes_per_second.second < curr_sec && event.actual_count < numberOfPredecessors) {
+				if (nodes_per_second.second < curr_sec && !nodes_per_second.marked && event.actual_count < numberOfPredecessors) {
 					for (Node predecessor : nodes_per_second.nodes_per_second) {																				
 						if (event.actual_count < numberOfPredecessors) {		
 							new_node.connect(predecessor);
