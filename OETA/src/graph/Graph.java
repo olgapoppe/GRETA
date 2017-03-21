@@ -68,7 +68,6 @@ public class Graph {
 			
 			// Every 100'th event marks all previous events as incompatible with all future events
 			if (nodeNumber%500 == 0) {
-				System.out.println("A negated pattern matches at " + event.sec + " sec");
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec) {
 						nodes_per_second.marked = true;
