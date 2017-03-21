@@ -67,7 +67,7 @@ public class Graph {
 			nodeNumber++;
 						
 			// Every n'th event marks all previous events as incompatible with all future events
-			if (negated_events_per_window > 0) {
+			if (negated_events_per_window > 0 && number_of_events_per_window > 0) {
 				int n = number_of_events_per_window/(1+negated_events_per_window);
 				if (nodeNumber%n == 0) {
 			
