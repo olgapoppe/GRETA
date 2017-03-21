@@ -13,10 +13,12 @@ import query.*;
 public class Greta extends Transaction {
 	
 	Query query;
+	int negated_events_per_window;
 		
-	public Greta (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+	public Greta (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem, int nepw) {		
 		super(str,d,time,mem);
 		query = q;
+		negated_events_per_window = nepw;
 	}
 	
 	public void run () {
@@ -37,7 +39,7 @@ public class Greta extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			Graph graph = new Graph();
 			
-			graph = graph.getCompleteGraphForPercentage(events, query);					
+			graph = graph.getCompleteGraphForPercentage(events, query, negated_events_per_window);					
 			count = count.add(new BigInteger(graph.final_count + ""));
 			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 			

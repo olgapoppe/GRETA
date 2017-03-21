@@ -17,11 +17,13 @@ public class Sase extends Transaction {
 	
 	Query query;
 	public BigInteger final_count;
+	int negated_events_per_window;
 			
-	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+	public Sase (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem, int nepw) {		
 		super(str,d,time,mem);
 		query = q;
 		final_count = BigInteger.ZERO;
+		negated_events_per_window = nepw;
 	}
 	
 	public void run () {
@@ -42,7 +44,7 @@ public class Sase extends Transaction {
 			// Construct the graph for each sub-stream
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);			
 			Graph graph = new Graph();
-			graph = graph.getCompleteGraphForPercentage(events, query);
+			graph = graph.getCompleteGraphForPercentage(events, query, negated_events_per_window);
 			
 			// Traverse the pointers from each event in the graph
 			int maxLength = 0;

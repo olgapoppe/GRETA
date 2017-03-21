@@ -2,7 +2,6 @@ package transaction;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -20,12 +19,14 @@ public class HCet extends Transaction {
 	Query query;
 	public BigInteger final_count;
 	int number_of_graphlets;
+	int negated_events_per_window;
 	
-	public HCet (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem, int graphlets) {		
+	public HCet (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem, int graphlets, int nepw) {		
 		super(str,d,time,mem);
 		query = q;
 		final_count = BigInteger.ZERO;
 		number_of_graphlets = graphlets;
+		negated_events_per_window = nepw;
 	}
 	
 	public void run() {
@@ -47,7 +48,7 @@ public class HCet extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);		
 			
 			Graph graph = new Graph();
-			graph = graph.getCompleteGraphForPercentage(events, query);
+			graph = graph.getCompleteGraphForPercentage(events, query, negated_events_per_window);
 			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4);
 			
 			// Compute and store trends per graphlet

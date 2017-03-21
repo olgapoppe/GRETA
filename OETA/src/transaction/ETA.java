@@ -13,10 +13,12 @@ import query.*;
 public class ETA extends Transaction {
 	
 	Query query;
+	int negated_events_per_window;
 		
-	public ETA (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem) {		
+	public ETA (Stream str, Query q, CountDownLatch d, AtomicLong time, AtomicInteger mem, int nepw) {		
 		super(str,d,time,mem);
 		query = q;
+		negated_events_per_window = nepw;
 	}
 	
 	public void run () {
@@ -40,7 +42,7 @@ public class ETA extends Transaction {
 				graph = graph.getCompressedGraph(events, query);
 			} else {
 				if (query.getPercentage() < 100) {
-					graph = graph.getCompleteGraphForPercentage(events, query);
+					graph = graph.getCompleteGraphForPercentage(events, query, negated_events_per_window);
 				} else {
 					graph = graph.getCompleteGraph(events, query);
 				}

@@ -40,8 +40,9 @@ public class Graph {
 		trends = new ArrayList<EventTrend>();
 	}	
 	
-	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query) {		
+	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query, int negated_events_per_window) {		
 		
+		int number_of_events_per_window = events.size();
 		int curr_sec = -1;	
 		Event event = events.peek();			
 		while (event != null) {
@@ -66,8 +67,9 @@ public class Graph {
 			nodeNumber++;
 			//System.out.println(event.toString() + " -> " + numberOfPredecessors);
 			
-			// Every 10000'th event marks all previous events as incompatible with all future events
-			if (nodeNumber%500 == 0) {
+			// Every n'th event marks all previous events as incompatible with all future events
+			if (event.id % (number_of_events_per_window/(negated_events_per_window+1)) == 0) {
+				//System.out.println("Negated event at " + event.sec);
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec) {
 						nodes_per_second.marked = true;

@@ -43,6 +43,7 @@ public class Main {
 		String ess = "any";
 		String predicate = "none";		
 		int events_per_window = Integer.MAX_VALUE;
+		int negated_events_per_window = 0;
 		int number_of_graphlets = 1;
 				
 		// Read input parameters
@@ -54,6 +55,7 @@ public class Main {
 			if (args[i].equals("-ess")) 		ess = args[++i];
 			if (args[i].equals("-pred")) 		predicate = args[++i];
 			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
+			if (args[i].equals("-nepw")) 		negated_events_per_window = Integer.parseInt(args[++i]);
 			if (args[i].equals("-graphlets")) 	number_of_graphlets = Integer.parseInt(args[++i]);
 		}	    
 	    
@@ -88,16 +90,16 @@ public class Main {
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 		Transaction transaction;
 		if (algorithm.equals("greta")) {
-			transaction = new Greta(stream,query,done,latency,memory);
+			transaction = new Greta(stream,query,done,latency,memory,negated_events_per_window);
 		} else {
 		if (algorithm.equals("hcet")) {
-			transaction = new HCet(stream,query,done,latency,memory,number_of_graphlets);
+			transaction = new HCet(stream,query,done,latency,memory,number_of_graphlets,negated_events_per_window);
 		} else {	
 		if (algorithm.equals("tcet")) {
-			transaction = new TCet(stream,query,done,latency,memory);
+			transaction = new TCet(stream,query,done,latency,memory,negated_events_per_window);
 		} else {
 		if (algorithm.equals("sase")) {
-			transaction = new Sase(stream,query,done,latency,memory);
+			transaction = new Sase(stream,query,done,latency,memory,negated_events_per_window);
 		} else {
 			transaction = new Aseq(stream,done,latency,memory);
 		}}}}
