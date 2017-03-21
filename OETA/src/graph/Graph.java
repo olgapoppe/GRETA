@@ -67,7 +67,7 @@ public class Graph {
 			//System.out.println(event.toString() + " -> " + numberOfPredecessors);
 			
 			// Every 10000'th event marks all previous events as incompatible with all future events
-			if (nodeNumber%10000 == 0) {
+			if (nodeNumber%500 == 0) {
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec) {
 						nodes_per_second.marked = true;
