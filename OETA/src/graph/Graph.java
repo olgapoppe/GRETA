@@ -71,7 +71,7 @@ public class Graph {
 				int n = number_of_events_per_window/(1+negated_events_per_window);
 				if (n > 0 && nodeNumber%n == 0) {
 			
-					System.out.println("Negated event at " + event.sec);
+					//System.out.println("Negated event at " + event.sec);
 					for (NodesPerSecond nodes_per_second : all_nodes) {
 						if (nodes_per_second.second < curr_sec) {
 							nodes_per_second.marked = true;						
