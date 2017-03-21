@@ -45,47 +45,47 @@ public class Sase extends Transaction {
 			graph = graph.getCompleteGraphForPercentage(events, query);
 			
 			// Traverse the pointers from each event in the graph
-			int maxTrendLength = 0;
+			int maxLength = 0;
 			for (NodesPerSecond nodes : graph.all_nodes) {
 				for (Node node : nodes.nodes_per_second) {
-					Stack<Node> current_trend = new Stack<Node>();
-					maxTrendLength = traversePointers(node,current_trend,maxTrendLength);
+					Stack<Node> trend = new Stack<Node>();
+					maxLength = traversePointers(node,trend,maxLength);
 			}}			
 			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 			
-			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxTrendLength);
+			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxLength);
 			final_count = BigInteger.ZERO;
 		}		
 	}
 	
 	// DFS in the stack
-	public int traversePointers (Node node, Stack<Node> current_trend, int maxTrendLength) {       
+	public int traversePointers (Node node, Stack<Node> trend, int maxLength) {       
 			
-		current_trend.push(node);
+		trend.push(node);
 		//System.out.println("pushed " + node.event.id);
         
 		/*** Output the current event trend ***/
         String result = "";        	
-        Iterator<Node> iter = current_trend.iterator();
+        Iterator<Node> iter = trend.iterator();
         while(iter.hasNext()) {
         	Node n = iter.next();
         	result += n.event.id + ";";
         }
-        if (maxTrendLength < current_trend.size()) maxTrendLength = current_trend.size();	
+        if (maxLength < trend.size()) maxLength = trend.size();	
         //results.add(result); 
         //System.out.println("result " + result);
         final_count = final_count.add(BigInteger.ONE);
       		
         /*** Traverse the previous nodes ***/        	
-        for(Node following : node.previous) {        		
+        for(Node previous : node.previous) {        		
         	//System.out.println("following of " + node.event.id + " is " + following.event.id);
-        	maxTrendLength = traversePointers(following,current_trend,maxTrendLength);        		
+        	maxLength = traversePointers(previous,trend,maxLength);        		
         }        	
         
-        Node top = current_trend.pop();
+        Node top = trend.pop();
         //System.out.println("popped " + top.event.id);
         
-        return maxTrendLength;	    	    
+        return maxLength;	    	    
 	}	
 	
 	/*public void computeResults (ConcurrentLinkedQueue<Event> events) {
