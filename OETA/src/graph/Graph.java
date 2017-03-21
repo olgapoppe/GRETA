@@ -65,14 +65,13 @@ public class Graph {
 			// Compute the number of predecessors
 			int numberOfPredecessors = (nodeNumber * query.getPercentage())/100;
 			nodeNumber++;
-			//System.out.println(event.toString() + " -> " + numberOfPredecessors);
-			
+						
 			// Every n'th event marks all previous events as incompatible with all future events
-			if (nodeNumber == number_of_events_per_window/(negated_events_per_window+1)) {
+			if (negated_events_per_window > 0 && nodeNumber % (number_of_events_per_window/(negated_events_per_window+1)) == 0) {
 				System.out.println("Negated event at " + event.sec);
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if (nodes_per_second.second < curr_sec) {
-						nodes_per_second.marked = true;
+						nodes_per_second.marked = true;						
 					}
 				}
 			}
@@ -89,7 +88,7 @@ public class Graph {
 							// System.out.println(new_node.event.id + " : " + previous_node.event.id + ", ");
 						} else { break; }
 					}
-				} else { break; }
+				} 
 			}	
 									
 			// Update the final count

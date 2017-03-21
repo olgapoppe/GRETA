@@ -60,7 +60,7 @@ public class HCet extends Transaction {
 			// Compute and output trends across graphlets
 			final_count = acrossGraphlets(graphlets);
 			
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());						
+			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());						
 			final_count = BigInteger.ZERO;
 		}			
 	}

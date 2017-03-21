@@ -73,6 +73,7 @@ public class Main {
 	    					//"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
 	    					"\nEvents per window: " + events_per_window +
+	    					"\nNegated events per window: " + negated_events_per_window +
 	    					"\nNumber of graphlets: " + number_of_graphlets +
 							"\n----------------------------------");	    
 
