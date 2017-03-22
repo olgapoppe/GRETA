@@ -46,7 +46,7 @@ public class PositionReport extends Event {
 	}
 	
 	public String getSubstreamid() {
-		return xway + "";
+		return lane + "_" + dir;
 		//return xway + "_" + dir + "_" + seg + "_" + vid;
 	}
 	
