@@ -21,6 +21,7 @@ public class InputFileGenerator {
 	
 	// -type stock -path ../../../Dropbox/DataSets/Stock/ -i_file_1 replicated.txt -o_file sorted.txt -real 1
 	// -type cluster -sec 1000 -lambda 20 -path ../../../Dropbox/DataSets/Cluster/ -o_file cluster-10.txt -groups 10 
+	// -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/ -i_file_1 0;2.dat -o_file position.dat
 	
 	public static void main (String[] args) {
 		
@@ -76,7 +77,8 @@ public class InputFileGenerator {
 						for (int count=1; count<=total_rate; count++) 
 							generate_stock_stream(output, id++, sec, count, matched_rate, lambda);	
 				}
-			} else { // Cluster data set
+			} else { 
+			if (type.equals("cluster")) {	
 				
 				Random random = new Random();
 				int min = 0;
@@ -87,12 +89,46 @@ public class InputFileGenerator {
 						generate_cluster_stream (output, sec, id++, lambda, number_of_groups);
 					}
 				}
-			}
+			} else { // position
+				String input = path + i_file_1;
+				create_id(input,output);
+			}}
 			// Close the file
 			output.close();
 			System.out.println("Done!");
 			
 		} catch (IOException e) { e.printStackTrace(); }	
+	}
+	
+	public static void create_id (String input_file_name, BufferedWriter output) {
+		
+		File input_file = new File(input_file_name);
+		Scanner input;
+		try { 
+			input = new Scanner(input_file); 
+			
+			String eventString = input.nextLine();
+			PositionReport event = PositionReport.parse(eventString);			
+			int id = 1;
+				
+			while (event != null) {
+			
+				try { 
+					// Write event
+					event.id = id++;
+					output.write(event.toFile()); 
+									
+				} catch (IOException e) { e.printStackTrace(); }
+		
+				// Reset event
+				if (input.hasNextLine()) {
+					eventString = input.nextLine();
+					event = PositionReport.parse(eventString);
+				} else {
+					event = null;
+				}			
+			}
+		} catch (FileNotFoundException e1) { e1.printStackTrace(); }
 	}
 	
 	/*** SYNTHETIC CLUSER ***/

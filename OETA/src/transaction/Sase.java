@@ -53,7 +53,7 @@ public class Sase extends Transaction {
 					Stack<Node> trend = new Stack<Node>();
 					maxLength = traversePointers(node,trend,maxLength);
 			}}			
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
+			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 			
 			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxLength);
 			final_count = BigInteger.ZERO;
