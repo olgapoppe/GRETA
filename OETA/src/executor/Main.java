@@ -1,5 +1,7 @@
 package executor;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -7,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import query.Query;
 import event.*;
 import transaction.*;
@@ -15,10 +18,11 @@ public class Main {
 	
 	/**
 	 * Create and call the chain: Input file -> Driver -> Scheduler -> Executor -> Output files 
-	 * -type stock -path src/iofiles/ -file stream.txt -pred 100% -epw 10 -algo hcet -graphlets 2
-	 * -type stock -path ../../../Dropbox/DataSets/Stock/ -file replicated.txt -pred 50% -epw 3520 -algo greta
+	 * -type stock -path ../../stock/ -file sorted.txt -pred none -epw 500 -algo sase
+	 * 
 	 * -type cluster -path ../../../Dropbox/DataSets/Cluster/ -file cluster.txt -pred 50% -epw 443947 -algo greta	 
 	 * -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/ -file position.dat -pred 50% -epw 1000 -algo greta
+	 * -type stock -path src/iofiles/ -file stream.txt -pred 100% -epw 10 -algo hcet -graphlets 2
 	 */
 	public static void main (String[] args) { 
 		
@@ -29,10 +33,10 @@ public class Main {
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
 	    System.out.println("----------------------------------\nCurrent Date: " + ft.format(dNow));
 	    
-	   /* Path currentRelativePath = Paths.get("");
+/*	    Path currentRelativePath = Paths.get("");
 	    String s = currentRelativePath.toAbsolutePath().toString();
-	    System.out.println("Current relative path is: " + s);*/
-	    
+	    System.out.println("Current relative path is: " + s);
+*/	    
 	    /*** Input and output ***/
 	    // Set default values
 	    String type = "stock";
@@ -44,7 +48,7 @@ public class Main {
 		String predicate = "none";		
 		int events_per_window = Integer.MAX_VALUE;
 		int negated_events_per_window = 0;
-		int number_of_graphlets = 1;
+		//int number_of_graphlets = 1;
 				
 		// Read input parameters
 	    for (int i=0; i<args.length; i++){
@@ -56,7 +60,7 @@ public class Main {
 			if (args[i].equals("-pred")) 		predicate = args[++i];
 			if (args[i].equals("-epw")) 		events_per_window = Integer.parseInt(args[++i]);
 			if (args[i].equals("-nepw")) 		negated_events_per_window = Integer.parseInt(args[++i]);
-			if (args[i].equals("-graphlets")) 	number_of_graphlets = Integer.parseInt(args[++i]);
+			//if (args[i].equals("-graphlets")) 	number_of_graphlets = Integer.parseInt(args[++i]);
 		}	    
 	    
 	    // Make sure the input parameters are correct
@@ -70,11 +74,11 @@ public class Main {
 	    System.out.println(	"Event type: " + type +
 	    					//"\nInput file: " + input +
 	    					"\nAlgorithm: " + algorithm +
-	    					//"\nESS: " + ess +
+	    					"\nESS: " + ess +
 	    					"\nPredicate: " + predicate +
 	    					"\nEvents per window: " + events_per_window +
-	    					"\nNegated events per window: " + negated_events_per_window +
-	    					"\nNumber of graphlets: " + number_of_graphlets +
+	    					//"\nNegated events per window: " + negated_events_per_window +
+	    					//"\nNumber of graphlets: " + number_of_graphlets +
 							"\n----------------------------------");	    
 
 		/*** SHARED DATA STRUCTURES ***/		
@@ -91,19 +95,22 @@ public class Main {
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 		Transaction transaction;
 		if (algorithm.equals("greta")) {
-			transaction = new Greta(stream,query,done,latency,memory,negated_events_per_window);
+			transaction = new Greta(stream,query,done,latency,memory,negated_events_per_window,false);
 		} else {
-		if (algorithm.equals("hcet")) {
+		if (algorithm.equals("greta-ct")) {
+			transaction = new Greta(stream,query,done,latency,memory,negated_events_per_window,true);
+		} else {
+		/*if (algorithm.equals("hcet")) {
 			transaction = new HCet(stream,query,done,latency,memory,number_of_graphlets,negated_events_per_window);
 		} else {	
 		if (algorithm.equals("tcet")) {
 			transaction = new TCet(stream,query,done,latency,memory,negated_events_per_window);
-		} else {
+		} else {*/
 		if (algorithm.equals("sase")) {
 			transaction = new Sase(stream,query,done,latency,memory,negated_events_per_window);
 		} else {
 			transaction = new Aseq(stream,done,latency,memory);
-		}}}}
+		}}}
 		executor.execute(transaction);
 				
 		/*** Wait till all input events are processed and terminate the executor ***/

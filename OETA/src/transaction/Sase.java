@@ -44,7 +44,7 @@ public class Sase extends Transaction {
 			// Construct the graph for each sub-stream
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);			
 			Graph graph = new Graph();
-			graph = graph.getCompleteGraphForPercentage(events, query, negated_events_per_window);
+			graph = graph.getCompleteGraph(events, query);
 			
 			// Traverse the pointers from each event in the graph
 			int maxLength = 0;
@@ -53,7 +53,7 @@ public class Sase extends Transaction {
 					Stack<Node> trend = new Stack<Node>();
 					maxLength = traversePointers(node,trend,maxLength);
 			}}			
-			//System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
+			System.out.println("Sub-stream id: " + substream_id + " with count " + final_count.intValue());
 			
 			memory.set(memory.get() + graph.nodeNumber * 12 + graph.edgeNumber * 4 + maxLength);
 			final_count = BigInteger.ZERO;

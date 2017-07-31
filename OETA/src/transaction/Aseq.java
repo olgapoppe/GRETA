@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
 import event.*;
 
 public class Aseq extends Transaction {
@@ -32,12 +33,13 @@ public class Aseq extends Transaction {
 		for (String substream_id : substream_ids) {					
 		 
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
-			computeResults(events);
+			BigInteger count = computeResults(events);
+			System.out.println("Sub-stream id: " + substream_id + " with count " + count);
 		}
-		System.out.println("Count: " + count);
+		
 	}
 	
-	public void computeResults (ConcurrentLinkedQueue<Event> events) {
+	public BigInteger computeResults (ConcurrentLinkedQueue<Event> events) {
 		
 		// Prefix counters per prefix length 
 		HashMap<Integer,BigInteger> prefix_counters_in_previous_second = new HashMap<Integer,BigInteger>();
@@ -76,7 +78,7 @@ public class Aseq extends Transaction {
 			}
 			event = events.peek();
 		}
-		count = count.add(new BigInteger(count_per_substream+""));
-		memory.set(memory.get() + prefix_counters_in_previous_second.size() + prefix_counters_in_current_second.size());	
+		memory.set(memory.get() + prefix_counters_in_previous_second.size() + prefix_counters_in_current_second.size());		
+		return count_per_substream;
 	}
 }
