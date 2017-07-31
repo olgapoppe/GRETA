@@ -30,7 +30,7 @@ public abstract class Event {
 		return sec;
 	}	
 	
-	public static Event parse (String line, String type) {
+	public static Event parse (int id, String line, String type) {
 		Event event;
 		if (type.equals("raw")) { 
 			event = RawEvent.parse(line); 
@@ -41,8 +41,11 @@ public abstract class Event {
 		if (type.equals("stock")) { 
 			event = StockEvent.parse(line); 
 		} else  {
+		if (type.equals("activity")) { 
+			event = ActivityEvent.parse(id,line); 
+		} else  {
 			event = PositionReport.parse(line);
-		}}}
+		}}}}
 		return event;
 	}
 	
@@ -56,7 +59,7 @@ public abstract class Event {
 	public abstract boolean down(Event next);
 	public abstract String toString();
 	
-	/** Print this event with pointers to console */
+	/** Print this event with pointers to console **/
 	public String toStringWithPointers() {
 		String s = id + " : ";
 		for (Event predecessor : pointers) {

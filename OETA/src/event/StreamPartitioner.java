@@ -23,11 +23,12 @@ public class StreamPartitioner {
 		try {			
 			// Input file
 			Scanner scanner = new Scanner(new File(filename));
+			// Event number	
+	 		int event_number = 1;
 			// First event
 			String line = scanner.nextLine();
-	 		Event event = Event.parse(line,type);
-	 		// Event number	
-	 		int event_number = 1;
+	 		Event event = Event.parse(event_number,line,type);
+	 		
  			
  			while (event != null && event_number <= events_per_window) {	 	
 	 			
@@ -45,7 +46,7 @@ public class StreamPartitioner {
 	 			/*** Reset event ***/
 	 			if (scanner.hasNextLine()) {		 				
 	 				line = scanner.nextLine();   
-	 				event = Event.parse(line,type);		 				
+	 				event = Event.parse(event_number,line,type);		 				
 	 			} else {
 	 				event = null;		 				
 	 			}	 			
