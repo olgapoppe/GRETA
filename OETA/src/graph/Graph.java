@@ -169,7 +169,7 @@ public class Graph {
 				for (NodesPerSecond nodes_per_second : all_nodes) {
 					if ((query.semantics.equals("any")  && nodes_per_second.second < curr_sec) || 
 						(query.semantics.equals("next") && nodes_per_second.id+1 == nodes_in_current_second.id) ||
-						(query.semantics.equals("cont") && !nodes_per_second.marked)) {					
+						(query.semantics.equals("cont") && nodes_per_second.id+1 == nodes_in_current_second.id && !nodes_per_second.marked)) {					
 						for (Node previous_node : nodes_per_second.nodes_per_second) {		
 							
 							new_node.count = new_node.count.add(previous_node.count);	
