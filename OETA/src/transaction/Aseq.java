@@ -34,9 +34,8 @@ public class Aseq extends Transaction {
 		 
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			BigInteger count = computeResults(events);
-			System.out.println("Sub-stream id: " + substream_id + " with count " + count);
-		}
-		
+			//System.out.println("Sub-stream id: " + substream_id + " with count " + count);
+		}		
 	}
 	
 	public BigInteger computeResults (ConcurrentLinkedQueue<Event> events) {

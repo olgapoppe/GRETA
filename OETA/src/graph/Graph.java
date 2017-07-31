@@ -170,6 +170,7 @@ public class Graph {
 							
 							new_node.count = new_node.count.add(previous_node.count);	
 							new_node.connect(previous_node);
+							edgeNumber++;							
 							//System.out.println(previous_node.event.id + " , " + new_node.event.id);
 				}}}				
 					

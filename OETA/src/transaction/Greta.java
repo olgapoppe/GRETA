@@ -43,7 +43,7 @@ public class Greta extends Transaction {
 			
 			graph = compressed ? graph.getCompressedGraph(events,query) : graph.getCompleteGraph(events, query);					
 			count = count.add(new BigInteger(graph.final_count + ""));
-			System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
+			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 			
 			memory.set(memory.get() + graph.nodeNumber * 12);		
 		}
