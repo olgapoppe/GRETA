@@ -19,6 +19,7 @@ import event.*;
 
 public class InputFileGenerator {
 	
+	// -type transport -path ../../../Dropbox/DataSets/PublicTransport/ -o_file transport.txt -groups 10 -sec 100000
 	// -type stock -path ../../../Dropbox/DataSets/Stock/ -i_file_1 replicated.txt -o_file sorted.txt -real 1
 	// -type cluster -sec 1000 -lambda 20 -path ../../../Dropbox/DataSets/Cluster/ -o_file cluster-10.txt -groups 10 
 	// -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/ -i_file_1 0;2.dat -o_file position.dat
@@ -63,6 +64,18 @@ public class InputFileGenerator {
 			int id = 1;
 			
 			// Generate input event stream
+			if (type.equals("transport")) {	
+				
+				Random random = new Random();
+				int min = 0;
+	        	int max = 10;
+				for (int sec=1; sec<=last_sec; sec++) {					
+		        	int rate = random.nextInt((max - min) + 1) + min;
+		        	for (int count=1; count<=rate; count++) {			
+						generate_transport_stream (output, sec, id++, number_of_groups);
+					}
+				}
+			} else {
 			if (type.equals("stock")) {		
 				if (real) {
 					String input_1 = path + i_file_1;
@@ -92,7 +105,7 @@ public class InputFileGenerator {
 			} else { // position
 				String input = path + i_file_1;
 				create_id(input,output);
-			}}
+			}}}
 			// Close the file
 			output.close();
 			System.out.println("Done!");
@@ -131,7 +144,37 @@ public class InputFileGenerator {
 		} catch (FileNotFoundException e1) { e1.printStackTrace(); }
 	}
 	
-	/*** SYNTHETIC CLUSER ***/
+	/*** SYNTHETIC PUBLIC TRANSPORT ***/
+	public static void generate_transport_stream (BufferedWriter output, int sec, int id, int number_of_groups) {
+		
+		Random random = new Random();
+		        
+		// Passenger identifier and station identifier are random values in a range between min and max
+        int min = 1;
+        int max = number_of_groups;
+        int passenger = random.nextInt((max - min) + 1) + min;
+        
+        int min1 = 1;
+        int max1 = 100;
+        int station = random.nextInt((max1 - min1) + 1) + min1;
+        
+        // Event type is check in (1), waiting (2), travel (3), and check out (4)              
+        int min2 = 1;
+        int max2 = 4;
+        int type = random.nextInt((max2 - min2) + 1) + min2;
+        
+        // Duration is a random variable between 1 and 3600        
+        int min3 = 1;
+        int max3 = 3600;
+        int duration = random.nextInt((max3 - min3) + 1) + min3;        
+        
+        // Save this event in the file
+        String event = id + "," + sec + "," + passenger + "," + type + "," + station + "," + duration + "\n";
+        try { output.append(event); } catch (IOException e) { e.printStackTrace(); }
+        //System.out.println("id " + id + " sec " + sec + " passenger " + passenger + " type " + type + " station " + station + " duration " + duration);
+	}
+	
+	/*** SYNTHETIC CLUSTER ***/
 	public static void generate_cluster_stream (BufferedWriter output, int sec, int id, double lambda, int number_of_groups) {
 		
 		Random random = new Random();

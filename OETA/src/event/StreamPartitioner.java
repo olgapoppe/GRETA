@@ -27,8 +27,7 @@ public class StreamPartitioner {
 	 		int event_number = 1;
 			// First event
 			String line = scanner.nextLine();
-	 		Event event = Event.parse(event_number,line,type);
-	 		
+	 		Event event = Event.parse(event_number,line,type);	 		
  			
  			while (event != null && event_number <= events_per_window) {	 	
 	 			

@@ -13,11 +13,6 @@ public class ActivityEvent extends Event {
 		heartRate = h;			
 	}
 	
-	/**
-	 * Parse the given line and construct an activity report.
-	 * @param line	
-	 * @return activity report
-	 */
 	public static ActivityEvent parse (int id, String line) {
 		
 		String[] values = line.split(",");
@@ -56,13 +51,4 @@ public class ActivityEvent extends Event {
 	public String toString() {
 		return "" + id;
 	}
-	
-	public boolean isCompatible (Event other) {
-		if (other instanceof ActivityEvent) {
-			ActivityEvent o = (ActivityEvent) other;
-			return this.id == o.id && this.heartRate < o.heartRate && this.activity == o.activity && this.sec < other.sec;
-		}
-		return false;
-	}
-
 }

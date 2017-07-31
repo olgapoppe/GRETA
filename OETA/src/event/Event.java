@@ -44,8 +44,11 @@ public abstract class Event {
 		if (type.equals("activity")) { 
 			event = ActivityEvent.parse(id,line); 
 		} else  {
+		if (type.equals("transport")) { 
+			event = TransportEvent.parse(line); 
+		} else  {
 			event = PositionReport.parse(line);
-		}}}}
+		}}}}}
 		return event;
 	}
 	
