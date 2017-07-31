@@ -43,6 +43,7 @@ public class Graph {
 	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query, int negated_events_per_window) {		
 		
 		int number_of_events_per_window = events.size();
+		int id = 1;
 		int curr_sec = -1;	
 		Event event = events.peek();			
 		while (event != null) {
@@ -53,7 +54,7 @@ public class Graph {
 			// Update the current second and all_nodes
 			if (curr_sec < event.sec) {
 				curr_sec = event.sec;
-				NodesPerSecond nodes_in_new_second = new NodesPerSecond(curr_sec);
+				NodesPerSecond nodes_in_new_second = new NodesPerSecond(id++,curr_sec);
 				all_nodes.add(nodes_in_new_second);				
 			}
 			
@@ -141,6 +142,7 @@ public class Graph {
 	
 	public Graph getCompleteGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
+		int id = 1;
 		int curr_sec = -1;	
 		Event event = events.peek();			
 		while (event != null) {
@@ -151,7 +153,7 @@ public class Graph {
 			// Update the current second and all_nodes
 			if (curr_sec < event.sec) {
 				curr_sec = event.sec;
-				NodesPerSecond nodes_in_new_second = new NodesPerSecond(curr_sec);
+				NodesPerSecond nodes_in_new_second = new NodesPerSecond(id++,curr_sec);
 				all_nodes.add(nodes_in_new_second);				
 			}
 			
@@ -159,13 +161,15 @@ public class Graph {
 			Node new_node = new Node(event);
 			NodesPerSecond nodes_in_current_second = all_nodes.get(all_nodes.size()-1);
 						
-			if (query.event_selection_strategy.equals("any") || nodes_in_current_second.nodes_per_second.isEmpty()) {
+			if (query.semantics.equals("any") || nodes_in_current_second.nodes_per_second.isEmpty()) {
 				nodes_in_current_second.nodes_per_second.add(new_node);		
 				nodeNumber++;			
 						
 				// Connect this event to all previous compatible events and compute the count of this node
 				for (NodesPerSecond nodes_per_second : all_nodes) {
-					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {					
+					if ((query.semantics.equals("any")  && nodes_per_second.second < curr_sec) || 
+						(query.semantics.equals("next") && nodes_per_second.id+1 == nodes_in_current_second.id) ||
+						(query.semantics.equals("cont") && !nodes_per_second.marked)) {					
 						for (Node previous_node : nodes_per_second.nodes_per_second) {		
 							
 							new_node.count = new_node.count.add(previous_node.count);	
@@ -180,7 +184,7 @@ public class Graph {
 				//System.out.println(new_node.toString());
 			} else {
 				// Mark all previous events as incompatible with all future events under the contiguous strategy
-				if (query.event_selection_strategy.equals("cont")) {
+				if (query.semantics.equals("cont")) {
 					for (NodesPerSecond nodes_per_second : all_nodes) {
 						nodes_per_second.marked = true;
 			}}}
@@ -251,7 +255,7 @@ public class Graph {
 	
 	public Graph getCompressedGraph (ConcurrentLinkedQueue<Event> events, Query query) {		
 		
-		if (query.event_selection_strategy.equals("any")) {
+		if (query.semantics.equals("any")) {
 		
 			int curr_sec = -1;
 			Event event = events.peek();			
@@ -296,7 +300,7 @@ public class Graph {
 					
 				} else {
 					// If the event cannot be inserted and the event selection strategy is contiguous, delete the last node
-					if (query.event_selection_strategy.equals("cont")) 
+					if (query.semantics.equals("cont")) 
 						last_node.marked = true;
 				}
 				event = events.peek();

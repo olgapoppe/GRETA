@@ -80,12 +80,7 @@ public class Sase extends Transaction {
       		
         /*** Traverse the previous nodes ***/        	
         for(Node previous : node.previous) {        		
-        	// System.out.println("following of " + node.event.id + " is " + previous.event.id);
-        	
-        	// Number of intermediate trends where previous is a non-optional event
-        	/*BigInteger number_of_intermediate_trends = BigInteger.valueOf(trend.size()+1);
-        	final_count = final_count.add(number_of_intermediate_trends);*/
-        	
+        	// System.out.println("following of " + node.event.id + " is " + previous.event.id);        	
         	maxLength = traversePointers(previous,trend,maxLength);
         }        	
         
@@ -247,7 +242,7 @@ public class Sase extends Transaction {
 				boolean contained_in_pointers = new_event.pointers.contains(prev_event);
 				//!!! boolean compatible = query.compatible(prev_event,new_event,id_of_last_compatible_predecessor);
 								
-				if ((query.event_selection_strategy.equals("any") || contained_in_pointers)) { // !!! && compatible) { 
+				if ((query.semantics.equals("any") || contained_in_pointers)) { // !!! && compatible) { 
 								
 					ArrayList<Event> events = new ArrayList<Event>();
 					events.add(new_event);

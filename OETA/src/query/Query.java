@@ -5,12 +5,12 @@ import event.*;
 public class Query {
 	
 	// any, next, cont
-	public String event_selection_strategy; 
+	public String semantics; 
 	// up, down, none, required_percentage% 
 	public String predicate_on_adjacent_events;
 	
-	public Query (String ess, String pred) {
-		event_selection_strategy = ess;
+	public Query (String sem, String pred) {
+		semantics = sem;
 		predicate_on_adjacent_events = pred;
 	}
 	
@@ -41,7 +41,7 @@ public class Query {
 	}
 	
 	public boolean compressible () {
-		return !event_selection_strategy.equals("any") || predicate_on_adjacent_events.equals("none");
+		return !semantics.equals("any") || predicate_on_adjacent_events.equals("none");
 	}
 
 }
