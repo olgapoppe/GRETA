@@ -80,8 +80,13 @@ public class Sase extends Transaction {
       		
         /*** Traverse the previous nodes ***/        	
         for(Node previous : node.previous) {        		
-        	//System.out.println("following of " + node.event.id + " is " + following.event.id);
-        	maxLength = traversePointers(previous,trend,maxLength);        		
+        	// System.out.println("following of " + node.event.id + " is " + previous.event.id);
+        	
+        	// Number of intermediate trends where previous is a non-optional event
+        	BigInteger number_of_intermediate_trends = BigInteger.valueOf(trend.size()+1);
+        	final_count = final_count.add(number_of_intermediate_trends);
+        	
+        	maxLength = traversePointers(previous,trend,maxLength);
         }        	
         
         Node top = trend.pop();
