@@ -75,7 +75,7 @@ public class Sase extends Transaction {
         }
         if (maxLength < trend.size()) maxLength = trend.size();	
         //results.add(result); 
-        //System.out.println("result " + result);
+        // System.out.println("result " + result);
         final_count = final_count.add(BigInteger.ONE);
       		
         /*** Traverse the previous nodes ***/        	
@@ -83,8 +83,8 @@ public class Sase extends Transaction {
         	// System.out.println("following of " + node.event.id + " is " + previous.event.id);
         	
         	// Number of intermediate trends where previous is a non-optional event
-        	BigInteger number_of_intermediate_trends = BigInteger.valueOf(trend.size()+1);
-        	final_count = final_count.add(number_of_intermediate_trends);
+        	/*BigInteger number_of_intermediate_trends = BigInteger.valueOf(trend.size()+1);
+        	final_count = final_count.add(number_of_intermediate_trends);*/
         	
         	maxLength = traversePointers(previous,trend,maxLength);
         }        	

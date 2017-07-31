@@ -168,7 +168,8 @@ public class Graph {
 					if (nodes_per_second.second < curr_sec && !nodes_per_second.marked) {					
 						for (Node previous_node : nodes_per_second.nodes_per_second) {		
 							
-							new_node.count = new_node.count.add(previous_node.count);																					
+							new_node.count = new_node.count.add(previous_node.count);	
+							new_node.connect(previous_node);
 							//System.out.println(previous_node.event.id + " , " + new_node.event.id);
 				}}}				
 					

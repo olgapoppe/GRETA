@@ -33,10 +33,10 @@ public class Main {
 	    SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
 	    System.out.println("----------------------------------\nCurrent Date: " + ft.format(dNow));
 	    
-/*	    Path currentRelativePath = Paths.get("");
+	    /* Path currentRelativePath = Paths.get("");
 	    String s = currentRelativePath.toAbsolutePath().toString();
-	    System.out.println("Current relative path is: " + s);
-*/	    
+	    System.out.println("Current relative path is: " + s); */
+	    
 	    /*** Input and output ***/
 	    // Set default values
 	    String type = "stock";
