@@ -42,7 +42,7 @@ public class Graph {
 	
 	public Graph getCompleteGraphForPercentage (ConcurrentLinkedQueue<Event> events, Query query, int negated_events_per_window) {		
 		
-		int number_of_events_per_window = events.size();
+		// int number_of_events_per_window = events.size();
 		int id = 1;
 		int curr_sec = -1;	
 		Event event = events.peek();			
@@ -68,7 +68,7 @@ public class Graph {
 			nodeNumber++;
 						
 			// Every n'th event marks all previous events as incompatible with all future events
-			if (negated_events_per_window > 0) {
+			/*if (negated_events_per_window > 0) {
 				int n = number_of_events_per_window/(1+negated_events_per_window);
 				if (n > 0 && nodeNumber%n == 0) {
 			
@@ -79,7 +79,7 @@ public class Graph {
 						}
 					}
 				}
-			}
+			}*/
 			
 			// Connect this event to all previous compatible events and compute the count of this node
 			for (NodesPerSecond nodes_per_second : all_nodes) {

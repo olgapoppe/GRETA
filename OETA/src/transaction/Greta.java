@@ -41,7 +41,15 @@ public class Greta extends Transaction {
 			ConcurrentLinkedQueue<Event> events = stream.substreams.get(substream_id);
 			Graph graph = new Graph();
 			
-			graph = compressed ? graph.getCompressedGraph(events,query) : graph.getCompleteGraph(events,query);					
+			if (compressed) {
+				graph = graph.getCompressedGraph(events,query);
+			} else {
+			if (query.getPercentage()<100) {
+				graph = graph.getCompleteGraphForPercentage(events, query, negated_events_per_window);
+			} else {
+				graph = graph.getCompleteGraph(events,query);
+			}}			
+								
 			count = count.add(new BigInteger(graph.final_count + ""));
 			//System.out.println("Sub-stream id: " + substream_id + " with count " + graph.final_count);
 			
