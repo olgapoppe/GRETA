@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
@@ -15,17 +17,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+
 import event.*;
 
 public class InputFileGenerator {
 	
-	// -type transport -path ../../../Dropbox/DataSets/PublicTransport/ -o_file transport.txt -groups 10 -sec 100000
+	// -type transport -path ../../../transport/ -o_file transport-30.txt -groups 30 -sec 1000000
 	// -type stock -path ../../../Dropbox/DataSets/Stock/ -i_file_1 replicated.txt -o_file sorted.txt -real 1
 	// -type cluster -sec 1000 -lambda 20 -path ../../../Dropbox/DataSets/Cluster/ -o_file cluster-10.txt -groups 10 
 	// -type position -path ../../../Dropbox/DataSets/LR/InAndOutput/1xway/ -i_file_1 0;2.dat -o_file position.dat
 	
 	public static void main (String[] args) {
 		
+		Path currentRelativePath = Paths.get("");
+	    String s = currentRelativePath.toAbsolutePath().toString();
+	    System.out.println("Current relative path is: " + s); 
+	    		
 		/*** Set default input parameters ***/
 		String type = "";
 		boolean real = false;
