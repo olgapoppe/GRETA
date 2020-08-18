@@ -1,12 +1,10 @@
 *** Event Trend Aggregation Algorithms ***
 
-java executor/Main "-path" "src/iofiles/" "-file" "stream.txt" "-type" "stock" "-epw" "1000" "-algo" "greta" "-pred" "50%" 
-java executor/Main "-path" "src/iofiles/" "-file" "stream.txt" "-type" "stock" "-epw" "1000" "-algo" "hcet" "-graphlets" "2" "-pred" "50%" 
+java executor/Main "-path" "src/iofiles/" "-file" "stream.txt" "-type" "stock" "-epw" "10" "-algo" "greta" "-pred" "50%" 
 
 - path is path to input files
 - file is the name of input file
 - type is event type: activity, cluster, position, stock, transport
 - epw is the number of events per window
 - algo is an algorithm: sase, hcet, aseq, greta
-- graphlets is the number of graphlets a graph to be partitioned into for HCET algorithm
 - pred is the predicate selectivity, e.g., 50% means that for each new event, half of connections to its predecessor events hold due to predicates 
